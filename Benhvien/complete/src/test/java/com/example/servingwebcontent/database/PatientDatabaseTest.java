@@ -72,6 +72,66 @@ class PatientDatabaseTest {
         assertNull(patientDatabase.findPatientById(PATIENT_ID));
     }
 
+    @Test
+    void searchPatientsByNameShouldFindInsertedPatient() {
+        patientDatabase.saveOrUpdatePatient(patient("Nguyen Search Unique", 27));
+
+        boolean exists = patientDatabase.searchPatientsByName("Search Unique").stream()
+                .anyMatch(patient -> PATIENT_ID.equals(patient.getId()));
+
+        assertTrue(exists);
+    }
+
+    @Test
+    void searchPatientsWithStreamShouldHandleKeywordAndEmptyKeyword() {
+        patientDatabase.saveOrUpdatePatient(patient("Stream Patient", 28));
+
+        assertTrue(patientDatabase.searchPatientsWithStream("Stream").stream()
+                .anyMatch(patient -> PATIENT_ID.equals(patient.getId())));
+        assertFalse(patientDatabase.searchPatientsWithStream("").isEmpty());
+    }
+
+    @Test
+    void searchAndSortPatientsShouldReturnSortedResults() {
+        patientDatabase.saveOrUpdatePatient(patient("A Sorted Patient", 29));
+
+        assertTrue(patientDatabase.searchAndSortPatients("Sorted").stream()
+                .anyMatch(patient -> PATIENT_ID.equals(patient.getId())));
+        assertFalse(patientDatabase.searchAndSortPatients(null).isEmpty());
+    }
+
+    @Test
+    void findPatientsByAgeRangeShouldContainInsertedPatient() {
+        patientDatabase.saveOrUpdatePatient(patient("Age Range Patient", 30));
+
+        boolean exists = patientDatabase.findPatientsByAgeRange(29, 31).stream()
+                .anyMatch(patient -> PATIENT_ID.equals(patient.getId()));
+
+        assertTrue(exists);
+    }
+
+    @Test
+    void countPatientsByGenderShouldReturnAtLeastInsertedPatient() {
+        patientDatabase.saveOrUpdatePatient(patient("Gender Count Patient", 31));
+
+        assertTrue(patientDatabase.countPatientsByGender("nam") >= 1);
+    }
+
+    @Test
+    void searchPatientsGlobalShouldFindInsertedPatient() {
+        patientDatabase.saveOrUpdatePatient(patient("Global Search Patient", 32));
+
+        boolean exists = patientDatabase.searchPatientsGlobal("Global Search").stream()
+                .anyMatch(patient -> PATIENT_ID.equals(patient.getId()));
+
+        assertTrue(exists);
+    }
+
+    @Test
+    void generateNextPatientIdShouldReturnPatientPattern() {
+        assertTrue(patientDatabase.generateNextPatientId().matches("P\\d{3,}"));
+    }
+
     private Patient patient(String name, int age) {
         Calendar dob = Calendar.getInstance();
         dob.add(Calendar.YEAR, -age);

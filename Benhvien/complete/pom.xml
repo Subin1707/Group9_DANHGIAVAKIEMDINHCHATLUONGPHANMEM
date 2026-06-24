@@ -69,6 +69,14 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
+				<configuration>
+                    <excludes>
+                        <exclude>com/example/servingwebcontent/Test/**</exclude>
+                        <exclude>com/example/servingwebcontent/Review/**</exclude>
+                        <exclude>com/example/servingwebcontent/service/AIService*</exclude>
+                        <exclude>com/example/servingwebcontent/ServingWebContentApplication.class</exclude>
+                    </excludes>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
