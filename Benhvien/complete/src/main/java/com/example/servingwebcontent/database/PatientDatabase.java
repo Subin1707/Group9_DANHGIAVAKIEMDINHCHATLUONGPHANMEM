@@ -37,7 +37,6 @@ public class PatientDatabase {
                 patients.add(patient);
             }
         } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             try { if (rs != null) rs.close(); } catch (Exception e) {}
             try { if (stmt != null) stmt.close(); } catch (Exception e) {}
@@ -88,7 +87,6 @@ public class PatientDatabase {
             return true;
         } catch (Exception e) {
             System.out.println("Error in saveOrUpdatePatient");
-            e.printStackTrace();
             try { if (conn != null) conn.close(); } catch (Exception ex) {}
             return false;
         }

@@ -2,6 +2,7 @@ package com.example.servingwebcontent.database;
 
 import com.example.servingwebcontent.Model.Patient;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Calendar;
@@ -10,42 +11,70 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PatientDatabaseTest {
 
+    private static final String PATIENT_ID = "TEST_DB_PATIENT";
+
     private final PatientDatabase patientDatabase = new PatientDatabase();
-    private final String testPatientId = "TEST_P999";
+
+    @BeforeEach
+    void setUp() {
+        patientDatabase.deletePatientById(PATIENT_ID);
+    }
 
     @AfterEach
-    void cleanup() {
-        patientDatabase.deletePatientById(testPatientId);
+    void tearDown() {
+        patientDatabase.deletePatientById(PATIENT_ID);
     }
 
     @Test
-    void savePatientShouldInsertIntoDockerDatabase() {
-        Calendar dob = Calendar.getInstance();
-        dob.set(2002, Calendar.JANUARY, 1);
+    void insertPatientShouldWork() {
+        assertTrue(patientDatabase.saveOrUpdatePatient(patient("Nguyen Test", 22)));
 
-        Patient patient = new Patient(
-                testPatientId,
-                "Bệnh nhân test",
-                dob,
-                22,
-                "Nam",
-                "Hà Nội",
-                "0900000000"
-        );
+        assertNotNull(patientDatabase.findPatientById(PATIENT_ID));
+    }
 
-        boolean saved = patientDatabase.saveOrUpdatePatient(patient);
-        Patient found = patientDatabase.findPatientById(testPatientId);
+    @Test
+    void updatePatientShouldWork() {
+        patientDatabase.saveOrUpdatePatient(patient("Ten cu", 22));
 
-        assertTrue(saved);
+        assertTrue(patientDatabase.saveOrUpdatePatient(patient("Ten moi", 23)));
+
+        Patient found = patientDatabase.findPatientById(PATIENT_ID);
         assertNotNull(found);
-        assertEquals(testPatientId, found.getId());
-        assertEquals("Bệnh nhân test", found.getName());
+        assertEquals("Ten moi", found.getName());
+        assertEquals(23, found.getAge());
     }
 
     @Test
-    void findPatientNotExistsShouldReturnNull() {
-        Patient found = patientDatabase.findPatientById("NOT_EXISTS_ID");
+    void findPatientByIdShouldReturnPatient() {
+        patientDatabase.saveOrUpdatePatient(patient("Nguoi benh", 24));
 
-        assertNull(found);
+        Patient found = patientDatabase.findPatientById(PATIENT_ID);
+
+        assertNotNull(found);
+        assertEquals(PATIENT_ID, found.getId());
+    }
+
+    @Test
+    void findAllPatientsShouldContainInsertedPatient() {
+        patientDatabase.saveOrUpdatePatient(patient("Nguoi benh list", 25));
+
+        boolean exists = patientDatabase.getPatientList().stream()
+                .anyMatch(patient -> PATIENT_ID.equals(patient.getId()));
+
+        assertTrue(exists);
+    }
+
+    @Test
+    void deletePatientShouldWork() {
+        patientDatabase.saveOrUpdatePatient(patient("Nguoi benh delete", 26));
+
+        assertTrue(patientDatabase.deletePatientById(PATIENT_ID));
+        assertNull(patientDatabase.findPatientById(PATIENT_ID));
+    }
+
+    private Patient patient(String name, int age) {
+        Calendar dob = Calendar.getInstance();
+        dob.add(Calendar.YEAR, -age);
+        return new Patient(PATIENT_ID, name, dob, age, "Nam", "Ha Noi", "0900000000");
     }
 }

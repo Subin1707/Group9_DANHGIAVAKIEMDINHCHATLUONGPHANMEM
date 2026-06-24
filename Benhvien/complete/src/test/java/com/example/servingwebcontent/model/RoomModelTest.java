@@ -8,26 +8,69 @@ import static org.junit.jupiter.api.Assertions.*;
 class RoomModelTest {
 
     @Test
-    void createRoomShouldSetDefaultStatus() {
-        Room room = new Room("R_TEST", "Phòng test", "BS. Test");
+    void createRoomBasicConstructorShouldDefaultActiveStatus() {
+        Room room = new Room("R001", "Phong noi tru", "BS A");
 
-        assertEquals("R_TEST", room.getId());
-        assertEquals("Phòng test", room.getName());
-        assertEquals("BS. Test", room.getDoctorName());
+        assertEquals("R001", room.getId());
+        assertEquals("Phong noi tru", room.getName());
+        assertEquals("BS A", room.getDoctorName());
         assertEquals("Hoạt động", room.getStatus());
     }
 
     @Test
-    void createRoomWithCapacityShouldWork() {
-        Room room = new Room("R002", "Phòng cấp cứu", "BS. A", 10, "Bảo trì");
+    void createRoomFullConstructorShouldSetAllFields() {
+        Room room = new Room("R002", "Phong cap cuu", "BS B", 10, "Bao tri");
 
+        assertEquals("R002", room.getId());
+        assertEquals("Phong cap cuu", room.getName());
+        assertEquals("BS B", room.getDoctorName());
         assertEquals(10, room.getCapacity());
-        assertEquals("Bảo trì", room.getStatus());
+        assertEquals("Bao tri", room.getStatus());
+    }
+
+    @Test
+    void setIdShouldUpdateId() {
+        Room room = new Room();
+        room.setId("R003");
+
+        assertEquals("R003", room.getId());
+    }
+
+    @Test
+    void setNameShouldUpdateName() {
+        Room room = new Room();
+        room.setName("Phong xet nghiem");
+
+        assertEquals("Phong xet nghiem", room.getName());
+    }
+
+    @Test
+    void setDoctorNameShouldUpdateDoctorName() {
+        Room room = new Room();
+        room.setDoctorName("BS C");
+
+        assertEquals("BS C", room.getDoctorName());
+    }
+
+    @Test
+    void setCapacityShouldUpdateCapacity() {
+        Room room = new Room();
+        room.setCapacity(25);
+
+        assertEquals(25, room.getCapacity());
+    }
+
+    @Test
+    void setStatusShouldUpdateStatus() {
+        Room room = new Room();
+        room.setStatus("Bao tri");
+
+        assertEquals("Bao tri", room.getStatus());
     }
 
     @Test
     void nullStatusShouldUseDefaultStatus() {
-        Room room = new Room("R003", "Phòng nội trú", "BS. B", 20, null);
+        Room room = new Room("R004", "Phong test", "BS D", 5, null);
 
         assertEquals("Hoạt động", room.getStatus());
     }

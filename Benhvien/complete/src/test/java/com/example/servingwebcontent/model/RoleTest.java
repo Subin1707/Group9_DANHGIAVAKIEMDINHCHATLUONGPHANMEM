@@ -8,30 +8,27 @@ import static org.junit.jupiter.api.Assertions.*;
 class RoleTest {
 
     @Test
-    void validAdminRoleShouldReturnAdmin() {
-        Role role = Role.fromStringOrDefault("ADMIN", Role.USER);
-
-        assertEquals(Role.ADMIN, role);
+    void adminStringShouldReturnAdmin() {
+        assertEquals(Role.ADMIN, Role.fromStringOrDefault("ADMIN", Role.USER));
     }
 
     @Test
-    void lowercaseStaffShouldReturnStaff() {
-        Role role = Role.fromStringOrDefault("staff", Role.USER);
-
-        assertEquals(Role.STAFF, role);
+    void staffStringShouldReturnStaff() {
+        assertEquals(Role.STAFF, Role.fromStringOrDefault("staff", Role.USER));
     }
 
     @Test
-    void invalidRoleShouldReturnDefault() {
-        Role role = Role.fromStringOrDefault("abc", Role.USER);
-
-        assertEquals(Role.USER, role);
+    void userStringShouldReturnUser() {
+        assertEquals(Role.USER, Role.fromStringOrDefault(" user ", Role.ADMIN));
     }
 
     @Test
-    void nullRoleShouldReturnDefault() {
-        Role role = Role.fromStringOrDefault(null, Role.USER);
+    void invalidStringShouldReturnDefaultUser() {
+        assertEquals(Role.USER, Role.fromStringOrDefault("abc", Role.USER));
+    }
 
-        assertEquals(Role.USER, role);
+    @Test
+    void nullStringShouldReturnDefaultUser() {
+        assertEquals(Role.USER, Role.fromStringOrDefault(null, Role.USER));
     }
 }
