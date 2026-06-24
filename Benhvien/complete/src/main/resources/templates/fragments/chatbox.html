@@ -1,0 +1,47 @@
+<div th:fragment="chatbox">
+    <link rel="stylesheet" href="/chatbox.css">
+
+    <button id="chatbox-toggle" class="chatbox-toggle" type="button"
+            aria-label="Mở trợ lý bệnh viện" aria-controls="chatbox-panel" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H7l-3 3V4Zm3 5h10M7 12h7"/></svg>
+    </button>
+
+    <section id="chatbox-panel" class="chatbox-panel" aria-label="Trợ lý bệnh viện" hidden>
+        <header class="chatbox-header">
+            <div class="chatbox-agent">
+                <span class="chatbox-avatar">AI</span>
+                <div>
+                    <strong>Trợ lý bệnh viện</strong>
+                    <span><i></i> Đang hoạt động với Groq</span>
+                </div>
+            </div>
+            <div class="chatbox-header-actions">
+                <button id="chatbox-reset" type="button" title="Xóa cuộc trò chuyện" aria-label="Xóa cuộc trò chuyện">↻</button>
+                <button id="chatbox-close" type="button" title="Đóng" aria-label="Đóng trợ lý">×</button>
+            </div>
+        </header>
+
+        <div id="chatbox-messages" class="chatbox-messages" role="log" aria-live="polite">
+            <div class="chat-message assistant">
+                <span class="message-avatar">AI</span>
+                <div class="message-bubble">Xin chào! Tôi có thể hướng dẫn đặt lịch khám, xem bệnh án, lịch cấp thuốc và sử dụng cổng bệnh nhân.</div>
+            </div>
+        </div>
+
+        <div class="chatbox-suggestions" aria-label="Câu hỏi gợi ý">
+            <button type="button">Cách đặt lịch khám?</button>
+            <button type="button">Xem lịch cấp thuốc ở đâu?</button>
+        </div>
+
+        <form id="chatbox-form" class="chatbox-form">
+            <textarea id="chatbox-input" rows="1" maxlength="2000"
+                      placeholder="Nhập câu hỏi..." aria-label="Câu hỏi"></textarea>
+            <button id="chatbox-send" type="submit" aria-label="Gửi câu hỏi">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 4 17 8-17 8 3-8-3-8Zm3 8h14"/></svg>
+            </button>
+        </form>
+        <p class="chatbox-disclaimer">AI có thể nhầm lẫn và không thay thế tư vấn của bác sĩ.</p>
+    </section>
+
+    <script src="/chatbox.js" defer></script>
+</div>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ Sơ Người Dùng</title>
+    <link rel="stylesheet" href="/patients.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <header class="page-header">
+        <h1><i class="fas fa-id-card"></i> Hồ Sơ Người Dùng</h1>
+        <nav class="breadcrumb">
+            <a href="/dashboard"><i class="fas fa-home"></i> Trang chủ</a> /
+            <a href="/admin/accounts">Tài khoản</a> / Hồ sơ
+        </nav>
+    </header>
+
+    <div th:if="${errorMessage}" class="alert alert-error">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
+    <div th:if="${successMessage}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+
+    <div class="form-section">
+        <h2><i class="fas fa-user"></i> Thông tin</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Username</label>
+                <input class="form-control readonly" th:value="${profile.username}" readonly>
+            </div>
+            <div class="form-group">
+                <label>Created</label>
+                <input class="form-control readonly" th:value="${profile.createdAt}" readonly>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section" th:if="${profile.username != 'admin'}">
+        <h2><i class="fas fa-link"></i> Liên kết bệnh nhân</h2>
+        <form th:action="@{'/admin/accounts/' + ${profile.username} + '/patient'}" method="post" class="patient-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patientId">Patient ID (ví dụ: P001)</label>
+                    <input id="patientId" name="patientId" class="form-control" th:value="${profile.patientId}" placeholder="Để trống nếu không liên kết">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-save"></i> Cập nhật liên kết
+                </button>
+            </div>
+        </form>
+        <small style="opacity:0.85;">Để lịch khám/bệnh án/lịch thuốc hiển thị đúng cho khách hàng, nên liên kết tài khoản với <code>patient.id</code>.</small>
+    </div>
+
+    <div class="form-section">
+        <h2><i class="fas fa-user-tag"></i> Quyền (Role)</h2>
+        <form th:action="@{'/admin/accounts/' + ${profile.username} + '/role'}" method="post" class="patient-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" class="form-control" th:disabled="${profile.username == 'admin'}">
+                        <option value="ADMIN" th:selected="${profile.role == T(com.example.servingwebcontent.Model.Role).ADMIN}">ADMIN</option>
+                        <option value="STAFF" th:selected="${profile.role == T(com.example.servingwebcontent.Model.Role).STAFF}">STAFF</option>
+                        <option value="USER" th:selected="${profile.role == T(com.example.servingwebcontent.Model.Role).USER}">USER</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit" th:disabled="${profile.username == 'admin'}">
+                    <i class="fas fa-save"></i> Cập nhật role
+                </button>
+                <a href="/admin/accounts" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        </form>
+        <small style="opacity:0.85;">Nếu DB chưa có cột <code>role</code> thì cập nhật role có thể thất bại.</small>
+    </div>
+
+    <div class="form-section">
+        <h2><i class="fas fa-key"></i> Reset mật khẩu</h2>
+        <form th:action="@{'/admin/accounts/' + ${profile.username} + '/password'}" method="post" class="patient-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Mật khẩu mới</label>
+                    <input id="password" type="password" name="password" class="form-control" required placeholder="ít nhất 6 ký tự">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Xác nhận mật khẩu</label>
+                    <input id="confirmPassword" type="password" name="confirmPassword" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">
+                    <i class="fas fa-sync"></i> Reset
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="form-section" th:if="${profile.username != 'admin'}">
+        <h2><i class="fas fa-trash"></i> Xóa tài khoản</h2>
+        <form th:action="@{'/admin/accounts/' + ${profile.username} + '/delete'}" method="post">
+            <div class="form-actions">
+                <button class="btn btn-reset" type="submit" onclick="return confirm('Xóa tài khoản này?');">
+                    <i class="fas fa-trash"></i> Xóa vĩnh viễn
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Chatbox Fragment -->
+<div th:replace="~{fragments/chatbox :: chatbox}"></div>
+</body>
+</html>

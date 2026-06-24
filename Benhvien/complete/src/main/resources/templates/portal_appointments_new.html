@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đặt lịch khám</title>
+    <link rel="stylesheet" href="/portal.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="portal-container">
+    <div class="topbar">
+        <div class="brand">
+            <h1>Hệ thống Quản lý Khám Bệnh</h1>
+            <p>Đặt lịch khám</p>
+        </div>
+        <div class="top-actions">
+            <a class="icon-btn" href="/portal/notifications" aria-label="Thông báo">
+                <i class="fa-regular fa-bell"></i>
+                <span class="badge" th:text="${notificationCount}">2</span>
+            </a>
+            <div class="user-chip">
+                <div class="avatar"><i class="fa-regular fa-user"></i></div>
+                <div class="name" th:text="${displayName}">Nguyễn Văn An</div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <a href="/portal/profile"><i class="fa-regular fa-id-card"></i> Thông tin cá nhân</a>
+        <a class="active" href="/portal/appointments/new"><i class="fa-regular fa-calendar-plus"></i> Đặt lịch khám</a>
+        <a href="/portal/appointments"><i class="fa-regular fa-calendar-check"></i> Quản lý lịch khám</a>
+        <a href="/portal/benhan"><i class="fa-regular fa-file-lines"></i> Bệnh án</a>
+        <a href="/portal/schedule"><i class="fa-solid fa-pills"></i> Lịch cấp thuốc</a>
+        <a href="/portal/notifications"><i class="fa-regular fa-bell"></i> Thông báo</a>
+        <a href="/logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</a>
+    </nav>
+
+    <div class="content">
+        <section class="card">
+            <div class="card-header">
+                <h2 class="card-title">Gửi yêu cầu đặt lịch</h2>
+                <span class="pill warn">PENDING</span>
+            </div>
+            <div th:if="${errorMessage}" class="pill danger" style="justify-content:center; margin-top: 10px;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span th:text="${errorMessage}">Lỗi</span>
+            </div>
+            <form action="/portal/appointments" method="post" style="margin-top: 14px;">
+                <div class="grid">
+                    <div class="field">
+                        <i class="fa-regular fa-hospital"></i>
+                        <div>
+                            <div class="label">Phòng / Bác sĩ</div>
+                            <select class="input" name="roomId" required>
+                                <option value="">-- Chọn phòng --</option>
+                                <option th:each="r : ${rooms}" th:value="${r.id}" th:text="${r.id + ' - ' + r.name + ' - ' + r.doctorName}">R001 - Phòng - BS</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <i class="fa-regular fa-clock"></i>
+                        <div>
+                            <div class="label">Thời gian khám</div>
+                            <input class="input" type="datetime-local" name="appointmentTime" required />
+                        </div>
+                    </div>
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <i class="fa-regular fa-comment-dots"></i>
+                        <div>
+                            <div class="label">Ghi chú (triệu chứng)</div>
+                            <input class="input" name="note" placeholder="VD: ho, sốt, đau bụng..." />
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu</button>
+                    <a class="btn btn-muted" href="/portal/appointments"><i class="fa-solid fa-list"></i> Xem lịch đã đặt</a>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+<!-- Chatbox Fragment -->
+<div th:replace="~{fragments/chatbox :: chatbox}"></div>
+</body>
+</html>

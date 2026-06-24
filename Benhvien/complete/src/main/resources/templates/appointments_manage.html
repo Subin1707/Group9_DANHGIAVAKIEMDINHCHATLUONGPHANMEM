@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý lịch khám</title>
+    <link rel="stylesheet" href="/patients.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <header class="page-header">
+        <h1><i class="fas fa-calendar-check"></i> Quản lý lịch khám</h1>
+        <nav class="breadcrumb">
+            <a href="/dashboard"><i class="fas fa-home"></i> Trang chủ</a> / Lịch khám
+        </nav>
+    </header>
+
+    <div class="table-section">
+        <h3><i class="fas fa-list"></i> Danh sách lịch khám</h3>
+
+        <div th:if="${errorMessage}" class="alert alert-error" style="margin-bottom: 16px;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${errorMessage}">Lỗi</span>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table" th:if="${appointments != null and !appointments.isEmpty()}">
+                <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Mã BN</th>
+                    <th>Phòng</th>
+                    <th>Thời gian</th>
+                    <th>Ghi chú</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${appointments}">
+                    <td th:text="${a.id}">AP001</td>
+                    <td th:text="${a.patientId}">P001</td>
+                    <td th:text="${a.roomId}">R001</td>
+                    <td th:text="${a.timeStr}">02/04/2026 09:00</td>
+                    <td th:text="${a.note}">Ho, sốt</td>
+                    <td>
+                        <span th:text="${a.status}">PENDING</span>
+                    </td>
+                    <td style="white-space: nowrap;">
+                        <form action="/appointments/manage/status" method="post" style="display:inline;">
+                            <input type="hidden" name="id" th:value="${a.id}">
+                            <input type="hidden" name="status" value="CONFIRMED">
+                            <button class="btn btn-search btn-sm" type="submit" th:disabled="${a.status == 'CONFIRMED'}">
+                                <i class="fas fa-check"></i> Duyệt
+                            </button>
+                        </form>
+                        <form action="/appointments/manage/status" method="post" style="display:inline;">
+                            <input type="hidden" name="id" th:value="${a.id}">
+                            <input type="hidden" name="status" value="CANCELLED">
+                            <button class="btn btn-reset btn-sm" type="submit" th:disabled="${a.status == 'CANCELLED'}">
+                                <i class="fas fa-times"></i> Từ chối
+                            </button>
+                        </form>
+                        <form th:if="${isAdmin}" action="/appointments/manage/delete" method="post" style="display:inline;">
+                            <input type="hidden" name="id" th:value="${a.id}">
+                            <button class="btn btn-secondary btn-sm" type="submit" onclick="return confirm('Xóa lịch khám này?');">
+                                <i class="fas fa-trash"></i> Xóa
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div th:if="${appointments == null or appointments.isEmpty()}" class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Chưa có lịch khám nào.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chatbox Fragment -->
+<div th:replace="~{fragments/chatbox :: chatbox}"></div>
+</body>
+</html>

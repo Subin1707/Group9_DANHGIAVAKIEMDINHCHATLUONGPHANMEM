@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Lịch Cấp Thuốc</title>
+    <link rel="stylesheet" href="/lichcapthuoc.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <h1><i class="fas fa-pills"></i> Quản Lý Lịch Cấp Thuốc</h1>
+            <nav class="breadcrumb">
+                <a href="/dashboard"><i class="fas fa-home"></i> Trang chủ</a> / Lịch cấp thuốc
+            </nav>
+        </header>
+
+        <!-- Thông báo lỗi/thành công -->
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+        
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Form thêm/sửa lịch cấp thuốc -->
+        <div class="form-section">
+            <h2 th:if="${editSchedule == null}">
+                <i class="fas fa-plus-circle"></i> Thêm Lịch Cấp Thuốc Mới
+            </h2>
+            <h2 th:if="${editSchedule != null}">
+                <i class="fas fa-edit"></i> Chỉnh Sửa Lịch Cấp Thuốc
+            </h2>
+            
+            <form th:action="${editSchedule == null} ? @{/schedule} : @{/schedule/update}" method="post" class="schedule-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id">Mã Lịch:</label>
+                        <input type="text" 
+                               id="id" 
+                               name="id" 
+                               th:value="${editSchedule != null} ? ${editSchedule.id} : ${nextScheduleId}" 
+                               readonly class="form-control readonly">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="benhanId">Bệnh Án: <span class="required">*</span></label>
+                        <select id="benhanId" name="benhanId" class="form-control" required onchange="updatePatientId()">
+                            <option value="">-- Chọn bệnh án --</option>
+                            <option th:each="benhan : ${benhans}" 
+                                    th:value="${benhan.id}" 
+                                    th:text="|${benhan.id} - ${benhan.patientId} - ${#strings.abbreviate(benhan.chanDoan, 25)}|"
+                                    th:data-patient-id="${benhan.patientId}"
+                                    th:selected="${editSchedule != null && editSchedule.benhanId == benhan.id}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patientId">Bệnh Nhân:</label>
+                        <select id="patientId" name="patientId" class="form-control">
+                            <option value="">-- Tự động điền từ bệnh án --</option>
+                            <option th:each="patient : ${patients}" 
+                                    th:value="${patient.id}" 
+                                    th:text="|${patient.id} - ${patient.name}|"
+                                    th:selected="${editSchedule != null && editSchedule.patientId == patient.id}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date">Ngày Cấp Thuốc: <span class="required">*</span></label>
+                        <input type="date" 
+                               id="date" 
+                               name="date" 
+                               class="form-control" 
+                               th:value="${editSchedule != null} ? ${#calendars.format(editSchedule.date, 'yyyy-MM-dd')} : ''" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tenthuoc">Tên Thuốc: <span class="required">*</span></label>
+                        <input type="text" 
+                               id="tenthuoc" 
+                               name="tenthuoc" 
+                               class="form-control" 
+                               th:value="${editSchedule != null} ? ${editSchedule.tenthuoc} : ''" 
+                               placeholder="Nhập tên thuốc" 
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="soluong">Số Lượng: <span class="required">*</span></label>
+                        <input type="text" 
+                               id="soluong" 
+                               name="soluong" 
+                               class="form-control" 
+                               th:value="${editSchedule != null} ? ${editSchedule.soluong} : ''" 
+                               placeholder="Ví dụ: 2 viên/ngày, 10ml" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        <span th:if="${editSchedule == null}">Thêm Lịch</span>
+                        <span th:if="${editSchedule != null}">Cập Nhật</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" th:if="${editSchedule != null}" onclick="cancelEdit()">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Form tìm kiếm -->
+        <div class="search-section">
+            <h3><i class="fas fa-search"></i> Tìm Kiếm Lịch Cấp Thuốc</h3>
+            <form action="/schedule" method="get" class="search-form">
+                <div class="search-row">
+                    <input type="text" 
+                           name="search" 
+                           class="form-control search-input" 
+                           th:value="${search}"
+                           placeholder="Tìm theo mã lịch, mã bệnh án, mã bệnh nhân, tên thuốc...">
+                    <button type="submit" class="btn btn-search">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                    <a href="/schedule" class="btn btn-reset">
+                        <i class="fas fa-undo"></i> Làm mới
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bảng danh sách lịch cấp thuốc -->
+        <div class="table-section">
+            <h3>
+                <i class="fas fa-list"></i> Danh Sách Lịch Cấp Thuốc
+                <span class="record-count" th:if="${scheduleList != null}">
+                    (Tổng: <span th:text="${scheduleList.size()}"></span> lịch)
+                </span>
+            </h3>
+            
+            <div class="table-wrapper">
+                <table class="data-table" th:if="${scheduleList != null and !scheduleList.isEmpty()}">
+                    <thead>
+                        <tr>
+                            <th>Mã Lịch</th>
+                            <th>Mã Bệnh Án</th>
+                            <th>Tên Bệnh Nhân</th>
+                            <th>Chẩn Đoán</th>
+                            <th>Ngày Cấp</th>
+                            <th>Tên Thuốc</th>
+                            <th>Số Lượng</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="schedule : ${scheduleList}">
+                            <td th:text="${schedule.id}" class="id-cell"></td>
+                            <td th:text="${schedule.benhanId}" class="benhan-id"></td>
+                            <td class="patient-name">
+                                <span th:each="patient : ${patients}" 
+                                      th:if="${patient.id == schedule.patientId}" 
+                                      th:text="${patient.name}">
+                                </span>
+                            </td>
+                            <td class="diagnosis">
+                                <span th:each="benhan : ${benhans}" 
+                                      th:if="${benhan.id == schedule.benhanId}" 
+                                      th:text="${#strings.abbreviate(benhan.chanDoan, 30)}"
+                                      th:title="${benhan.chanDoan}">
+                                </span>
+                            </td>
+                            <td th:text="${#calendars.format(schedule.date, 'dd/MM/yyyy')}" class="date-cell"></td>
+                            <td th:text="${schedule.tenthuoc}" class="medicine-name"></td>
+                            <td th:text="${schedule.soluong}" class="quantity-cell"></td>
+                            <td class="action-cell">
+                                <a th:href="@{/schedule/edit/{id}(id=${schedule.id}, search=${search})}" 
+                                   class="btn btn-edit" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/schedule/delete/{id}(id=${schedule.id}, search=${search})}" 
+                                   class="btn btn-delete" 
+                                   title="Xóa"
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa lịch cấp thuốc này?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div th:if="${scheduleList == null or scheduleList.isEmpty()}" class="no-data">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Không có lịch cấp thuốc nào được tìm thấy</p>
+                    <span th:if="${search != null and !search.isEmpty()}" 
+                          th:text="'Từ khóa tìm kiếm: ' + ${search}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/lichcapthuoc.js"></script>
+    <script>
+        // Hàm tự động cập nhật patientId khi chọn bệnh án
+        function updatePatientId() {
+            const benhanSelect = document.getElementById('benhanId');
+            const patientSelect = document.getElementById('patientId');
+            
+            if (benhanSelect.value) {
+                const selectedOption = benhanSelect.options[benhanSelect.selectedIndex];
+                const patientId = selectedOption.getAttribute('data-patient-id');
+                
+                if (patientId) {
+                    patientSelect.value = patientId;
+                    // Hiệu ứng visual để show sự thay đổi
+                    patientSelect.style.background = '#e8f5e8';
+                    setTimeout(() => {
+                        patientSelect.style.background = '#fafbfc';
+                    }, 1000);
+                }
+            } else {
+                patientSelect.value = '';
+                patientSelect.style.background = '#fafbfc';
+            }
+        }
+
+        // Hàm hủy chỉnh sửa
+        function cancelEdit() {
+            if (confirm('Bạn có chắc chắn muốn hủy chỉnh sửa? Dữ liệu chưa lưu sẽ bị mất.')) {
+                window.location.href = '/schedule';
+            }
+        }
+
+        // Validation form trước khi submit
+        function validateForm() {
+            const benhanId = document.getElementById('benhanId').value;
+            const date = document.getElementById('date').value;
+            const tenthuoc = document.getElementById('tenthuoc').value;
+            const soluong = document.getElementById('soluong').value;
+
+            if (!benhanId) {
+                alert('Vui lòng chọn bệnh án!');
+                return false;
+            }
+            if (!date) {
+                alert('Vui lòng chọn ngày cấp thuốc!');
+                return false;
+            }
+            if (!tenthuoc.trim()) {
+                alert('Vui lòng nhập tên thuốc!');
+                return false;
+            }
+            if (!soluong.trim()) {
+                alert('Vui lòng nhập số lượng thuốc!');
+                return false;
+            }
+            return true;
+        }
+
+        // Tự động focus và setup khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            const editSchedule = /*[[${editSchedule}]]*/ null;
+            const form = document.querySelector('.schedule-form');
+            
+            // Thêm validation khi submit
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!validateForm()) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+            
+            // Focus vào field đầu tiên khi edit
+            if (editSchedule) {
+                document.getElementById('tenthuoc').focus();
+            } else {
+                // Focus vào benhanId khi thêm mới
+                document.getElementById('benhanId').focus();
+            }
+
+            // Setup date picker với ngày hiện tại nếu chưa có
+            const dateInput = document.getElementById('date');
+            if (!dateInput.value && !editSchedule) {
+                const today = new Date();
+                const dateStr = today.toISOString().split('T')[0];
+                dateInput.value = dateStr;
+            }
+        });
+
+        // Smooth scroll khi có anchor
+        function scrollToForm() {
+            document.querySelector('.form-section').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    </script>
+
+    <!-- Chatbox Fragment -->
+    <div th:replace="~{fragments/chatbox :: chatbox}"></div>
+</body>
+</html>

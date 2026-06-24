@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Phòng Điều Trị</title>
+    <link rel="stylesheet" href="/phongdieutri.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <h1><i class="fas fa-hospital-user"></i> Quản Lý Phòng Điều Trị</h1>
+            <nav class="breadcrumb">
+                <a href="/dashboard"><i class="fas fa-home"></i> Trang chủ</a> / Phòng điều trị
+            </nav>
+        </header>
+
+        <!-- Thông báo lỗi/thành công -->
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+        
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Form thêm/sửa phòng điều trị -->
+        <div class="form-section">
+            <h2 th:if="${editRoom == null}">
+                <i class="fas fa-plus-circle"></i> Thêm Phòng Điều Trị Mới
+            </h2>
+            <h2 th:if="${editRoom != null}">
+                <i class="fas fa-edit"></i> Chỉnh Sửa Phòng Điều Trị
+            </h2>
+            
+            <form th:action="${editRoom == null} ? @{/room} : @{/room/update}" method="post" class="room-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id">Mã Phòng:</label>
+                        <input type="text" 
+                               id="id" 
+                               name="id" 
+                               th:value="${editRoom != null} ? ${editRoom.id} : ${nextRoomId}" 
+                               readonly class="form-control readonly">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">Tên Phòng: <span class="required">*</span></label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               class="form-control" 
+                               th:value="${editRoom != null} ? ${editRoom.name} : ''" 
+                               placeholder="Nhập tên phòng điều trị" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="doctorName">Bác Sĩ Điều Trị: <span class="required">*</span></label>
+                        <input type="text" 
+                               id="doctorName" 
+                               name="doctorName" 
+                               class="form-control" 
+                               th:value="${editRoom != null} ? ${editRoom.doctorName} : ''" 
+                               placeholder="Nhập tên bác sĩ điều trị" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        <span th:if="${editRoom == null}">Thêm Phòng</span>
+                        <span th:if="${editRoom != null}">Cập Nhật</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" th:if="${editRoom != null}" onclick="cancelEdit()">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Form tìm kiếm -->
+        <div class="search-section">
+            <h3><i class="fas fa-search"></i> Tìm Kiếm Phòng Điều Trị</h3>
+            <form action="/room" method="get" class="search-form">
+                <div class="search-row">
+                    <input type="text" 
+                           name="search" 
+                           class="form-control search-input" 
+                           th:value="${search}"
+                           placeholder="Tìm theo mã phòng, tên phòng, tên bác sĩ...">
+                    <button type="submit" class="btn btn-search">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                    <a href="/room" class="btn btn-reset">
+                        <i class="fas fa-undo"></i> Làm mới
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bảng danh sách phòng điều trị -->
+        <div class="table-section">
+            <h3>
+                <i class="fas fa-list"></i> Danh Sách Phòng Điều Trị
+                <span class="record-count" th:if="${roomList != null}">
+                    (Tổng: <span th:text="${roomList.size()}"></span> phòng)
+                </span>
+            </h3>
+            
+            <div class="table-wrapper">
+                <table class="data-table" th:if="${roomList != null and !roomList.isEmpty()}">
+                    <thead>
+                        <tr>
+                            <th>Mã Phòng</th>
+                            <th>Tên Phòng</th>
+                            <th>Bác Sĩ Điều Trị</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="room : ${roomList}">
+                            <td th:text="${room.id}" class="id-cell"></td>
+                            <td th:text="${room.name}" class="room-name"></td>
+                            <td th:text="${room.doctorName}" class="doctor-name"></td>
+                            <td class="action-cell">
+                                <a th:href="@{/room/edit/{id}(id=${room.id}, search=${search})}" 
+                                   class="btn btn-edit" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/room/delete/{id}(id=${room.id}, search=${search})}" 
+                                   class="btn btn-delete" 
+                                   title="Xóa"
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa phòng điều trị này?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div th:if="${roomList == null or roomList.isEmpty()}" class="no-data">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Không có phòng điều trị nào được tìm thấy</p>
+                    <span th:if="${search != null and !search.isEmpty()}" 
+                          th:text="'Từ khóa tìm kiếm: ' + ${search}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hàm hủy chỉnh sửa
+        function cancelEdit() {
+            if (confirm('Bạn có chắc chắn muốn hủy chỉnh sửa? Dữ liệu chưa lưu sẽ bị mất.')) {
+                window.location.href = '/room';
+            }
+        }
+
+        // Validation form trước khi submit
+        function validateForm() {
+            const name = document.getElementById('name').value;
+            const doctorName = document.getElementById('doctorName').value;
+
+            if (!name.trim()) {
+                alert('Vui lòng nhập tên phòng!');
+                return false;
+            }
+            if (!doctorName.trim()) {
+                alert('Vui lòng nhập tên bác sĩ điều trị!');
+                return false;
+            }
+            return true;
+        }
+
+        // Tự động focus và setup khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            const editRoom = /*[[${editRoom}]]*/ null;
+            const form = document.querySelector('.room-form');
+            
+            // Thêm validation khi submit
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!validateForm()) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+            
+            // Focus vào field đầu tiên khi edit
+            if (editRoom) {
+                document.getElementById('name').focus();
+            } else {
+                // Focus vào name khi thêm mới
+                document.getElementById('name').focus();
+            }
+        });
+
+        // Smooth scroll khi có anchor
+        function scrollToForm() {
+            document.querySelector('.form-section').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    </script>
+
+    <!-- Chatbox Fragment -->
+    <div th:replace="~{fragments/chatbox :: chatbox}"></div>
+</body>
+</html>

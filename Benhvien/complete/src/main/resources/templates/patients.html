@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Bệnh Nhân</title>
+    <link rel="stylesheet" href="/patients.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="page-header">
+            <h1><i class="fas fa-user-injured"></i> Quản Lý Bệnh Nhân</h1>
+            <nav class="breadcrumb">
+                <a href="/dashboard"><i class="fas fa-home"></i> Trang chủ</a> / Bệnh nhân
+            </nav>
+        </header>
+
+        <!-- Thông báo lỗi/thành công -->
+        <div th:if="${errorMessage}" class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${errorMessage}"></span>
+        </div>
+        
+        <div th:if="${successMessage}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${successMessage}"></span>
+        </div>
+
+        <!-- Form thêm/sửa bệnh nhân -->
+        <div class="form-section">
+            <h2 th:if="${editPatient == null}">
+                <i class="fas fa-plus-circle"></i> Thêm Bệnh Nhân Mới
+            </h2>
+            <h2 th:if="${editPatient != null}">
+                <i class="fas fa-edit"></i> Chỉnh Sửa Bệnh Nhân
+            </h2>
+            
+            <form th:action="${editPatient == null} ? @{/patients} : @{/patients/update}" method="post" class="patient-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id">Mã Bệnh Nhân:</label>
+                        <input type="text" 
+                               id="id" 
+                               name="id" 
+                               th:value="${editPatient != null} ? ${editPatient.id} : ${nextPatientId}" 
+                               readonly class="form-control readonly">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">Họ Tên: <span class="required">*</span></label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               class="form-control" 
+                               th:value="${editPatient != null} ? ${editPatient.name} : ''" 
+                               placeholder="Nhập họ tên bệnh nhân" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dob">Ngày Sinh: <span class="required">*</span></label>
+                        <input type="date" 
+                               id="dob" 
+                               name="dob" 
+                               class="form-control" 
+                               th:value="${editPatient != null} ? ${#dates.format(editPatient.dob.time, 'yyyy-MM-dd')} : ''" 
+                               required 
+                               onchange="calculateAge(this, 'age')">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">Tuổi:</label>
+                        <input type="number" 
+                               id="age" 
+                               name="age" 
+                               class="form-control readonly" 
+                               th:value="${editPatient != null} ? ${editPatient.age} : ''" 
+                               placeholder="Tự động tính từ ngày sinh" 
+                               readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="gender">Giới Tính: <span class="required">*</span></label>
+                        <select id="gender" name="gender" class="form-control" required>
+                            <option value="">-- Chọn giới tính --</option>
+                            <option value="Nam" 
+                                    th:selected="${editPatient != null && editPatient.gender == 'Nam'}">
+                                <i class="fas fa-mars"></i> Nam
+                            </option>
+                            <option value="Nữ" 
+                                    th:selected="${editPatient != null && editPatient.gender == 'Nữ'}">
+                                <i class="fas fa-venus"></i> Nữ
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Số Điện Thoại: <span class="required">*</span></label>
+                        <input type="tel" 
+                               id="phone" 
+                               name="phone" 
+                               class="form-control" 
+                               th:value="${editPatient != null} ? ${editPatient.phone} : ''" 
+                               placeholder="Nhập số điện thoại" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="address">Địa Chỉ: <span class="required">*</span></label>
+                        <input type="text" 
+                               id="address" 
+                               name="address" 
+                               class="form-control" 
+                               th:value="${editPatient != null} ? ${editPatient.address} : ''" 
+                               placeholder="Nhập địa chỉ đầy đủ" 
+                               required>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        <span th:if="${editPatient == null}">Thêm Bệnh Nhân</span>
+                        <span th:if="${editPatient != null}">Cập Nhật</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary" th:if="${editPatient != null}" onclick="cancelEdit()">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Form tìm kiếm -->
+        <div class="search-section">
+            <h3><i class="fas fa-search"></i> Tìm Kiếm Bệnh Nhân</h3>
+            <form action="/patients" method="get" class="search-form">
+                <div class="search-row">
+                    <input type="text" 
+                           name="search" 
+                           class="form-control search-input" 
+                           th:value="${search}"
+                           placeholder="Tìm theo mã BN, tên, tuổi, giới tính, địa chỉ, SĐT...">
+                    <button type="submit" class="btn btn-search">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                    <a href="/patients" class="btn btn-reset">
+                        <i class="fas fa-undo"></i> Làm mới
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Bảng danh sách bệnh nhân -->
+        <div class="table-section">
+            <h3>
+                <i class="fas fa-list"></i> Danh Sách Bệnh Nhân
+                <span class="record-count" th:if="${patients != null}">
+                    (Tổng: <span th:text="${patients.size()}"></span> bệnh nhân)
+                </span>
+            </h3>
+            
+            <div class="table-wrapper">
+                <table class="data-table" th:if="${patients != null and !patients.isEmpty()}">
+                    <thead>
+                        <tr>
+                            <th>Mã BN</th>
+                            <th>Họ Tên</th>
+                            <th>Tuổi</th>
+                            <th>Giới Tính</th>
+                            <th>Số Điện Thoại</th>
+                            <th>Địa Chỉ</th>
+                            <th>Ngày Sinh</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="patient : ${patients}">
+                            <td th:text="${patient.id}" class="id-cell"></td>
+                            <td th:text="${patient.name}" class="patient-name"></td>
+                            <td th:text="${patient.age}" class="age-cell"></td>
+                            <td class="gender-cell">
+                                <span th:class="${patient.gender == 'Nam' ? 'gender-male' : 'gender-female'}"
+                                      th:text="${patient.gender}"></span>
+                            </td>
+                            <td th:text="${patient.phone}" class="phone-cell"></td>
+                            <td th:text="${#strings.abbreviate(patient.address, 30)}" 
+                                class="address-cell" 
+                                th:title="${patient.address}"></td>
+                            <td th:text="${#dates.format(patient.dob.time, 'dd/MM/yyyy')}" class="date-cell"></td>
+                            <td class="action-cell">
+                                <a th:href="@{/patients/edit/{id}(id=${patient.id}, search=${search})}" 
+                                   class="btn btn-edit" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/patients/delete/{id}(id=${patient.id}, search=${search})}" 
+                                   class="btn btn-delete" 
+                                   title="Xóa"
+                                   onclick="return confirm('⚠️ CẢNH BÁO: Việc xóa bệnh nhân này sẽ đồng thời xóa TẤT CẢ bệnh án liên quan!\n\nBạn có chắc chắn muốn tiếp tục?')">>
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div th:if="${patients == null or patients.isEmpty()}" class="no-data">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Không có bệnh nhân nào được tìm thấy</p>
+                    <span th:if="${search != null and !search.isEmpty()}" 
+                          th:text="'Từ khóa tìm kiếm: ' + ${search}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hàm tính tuổi từ ngày sinh
+        function calculateAge(dobInput, ageInputId) {
+            const dob = new Date(dobInput.value);
+            const today = new Date();
+            
+            if (dob > today) {
+                document.getElementById(ageInputId).value = '';
+                return;
+            }
+            
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+            
+            document.getElementById(ageInputId).value = age;
+        }
+
+        // Hàm hủy chỉnh sửa
+        function cancelEdit() {
+            if (confirm('Bạn có chắc chắn muốn hủy chỉnh sửa? Dữ liệu chưa lưu sẽ bị mất.')) {
+                window.location.href = '/patients';
+            }
+        }
+
+        // Validation form trước khi submit
+        function validateForm() {
+            const name = document.getElementById('name').value;
+            const dob = document.getElementById('dob').value;
+            const gender = document.getElementById('gender').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+
+            if (!name.trim()) {
+                alert('Vui lòng nhập họ tên!');
+                return false;
+            }
+            if (!dob) {
+                alert('Vui lòng chọn ngày sinh!');
+                return false;
+            }
+            if (!gender) {
+                alert('Vui lòng chọn giới tính!');
+                return false;
+            }
+            if (!phone.trim()) {
+                alert('Vui lòng nhập số điện thoại!');
+                return false;
+            }
+            if (!address.trim()) {
+                alert('Vui lòng nhập địa chỉ!');
+                return false;
+            }
+            return true;
+        }
+
+        // Tự động focus và setup khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            const editPatient = /*[[${editPatient}]]*/ null;
+            const form = document.querySelector('.patient-form');
+            
+            // Thêm validation khi submit
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (!validateForm()) {
+                        e.preventDefault();
+                        return false;
+                    }
+                });
+            }
+            
+            // Focus vào field đầu tiên khi edit hoặc thêm mới
+            if (editPatient) {
+                document.getElementById('name').focus();
+            } else {
+                document.getElementById('name').focus();
+            }
+
+            // Tự động tính tuổi khi có ngày sinh
+            const dobInput = document.getElementById('dob');
+            if (dobInput.value) {
+                calculateAge(dobInput, 'age');
+            }
+        });
+
+        // Smooth scroll khi có anchor
+        function scrollToForm() {
+            document.querySelector('.form-section').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+    </script>
+
+    <!-- Chatbox Fragment -->
+    <div th:replace="~{fragments/chatbox :: chatbox}"></div>
+</body>
+</html>

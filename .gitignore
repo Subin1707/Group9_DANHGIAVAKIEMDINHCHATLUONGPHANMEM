@@ -1,0 +1,15 @@
+target/
+build/
+.gradle/
+
+.idea/
+.vscode/
+
+.agents/
+.codex/
+
+*.class
+*.log
+*.tmp
+
+.env

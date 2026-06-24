@@ -1,0 +1,284 @@
+/* ===== RESET ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: url('/asset/login1.webp') no-repeat center center fixed;
+  background-size: cover;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ===== NỀN ĐỘNG TOÀN MÀN HÌNH ===== */
+.background-animation::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(173,216,230,0.2));
+  backdrop-filter: blur(1.5px);
+  animation: moveGradient 18s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes moveGradient {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(12px, -12px); }
+}
+
+/* ===== CONTAINER ===== */
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== LOGIN BOX ===== */
+.login-box {
+  position: relative;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 20px;
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(5px);
+  overflow: hidden;
+  z-index: 1;
+}
+
+.login-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      rgba(255, 255, 255, 0.03),
+      rgba(0, 123, 255, 0.03)
+    ),
+    url('/asset/login5.jpg') center center / cover no-repeat;
+  opacity: 0.38;
+  filter: contrast(135%) brightness(1.2) saturate(1.1);
+  animation: loginBgMove 20s ease-in-out infinite alternate;
+  z-index: 0;
+}
+
+@keyframes loginBgMove {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.05) translate(-5px, -5px); }
+  100% { transform: scale(1) translate(0, 0); }
+}
+
+.login-box * {
+  position: relative;
+  z-index: 1;
+}
+
+.login-box h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 25px;
+  text-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+  position: relative;
+}
+
+.login-box h2::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(to right, #007bff, #00c6ff);
+  border-radius: 2px;
+}
+
+/* ===== INPUT ===== */
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #007bff;
+  z-index: 2;
+  font-size: 16px;
+}
+
+.input-group input {
+  padding-left: 45px;
+  width: 100%;
+  padding-right: 20px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  border: 2px solid #ddd;
+  border-radius: 30px;
+  background: rgba(240, 248, 255, 0.9);
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.3);
+  outline: none;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* ===== BUTTON: ĐĂNG NHẬP ===== */
+.login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.login-btn i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.login-btn:hover {
+  background-color: #0056b3;
+  box-shadow: 0 6px 18px rgba(0, 123, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+/* ===== BUTTON: ĐĂNG XUẤT ===== */
+.logout-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #dc3545;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  transition: all 0.3s ease;
+}
+
+.logout-btn i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+  box-shadow: 0 6px 18px rgba(220, 53, 69, 0.6);
+  transform: translateY(-2px);
+}
+
+/* ===== THÔNG BÁO ===== */
+.error {
+  color: #d63031;
+  font-size: 14px;
+  margin-top: 10px;
+  background: rgba(255, 71, 87, 0.1);
+  border: 1px solid #ff4757;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.success {
+  color: #27ae60;
+  font-size: 14px;
+  margin-top: 10px;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid #28a745;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== LIÊN KẾT ===== */
+.register-links {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #444;
+}
+
+.register-links a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-links a:hover {
+  text-decoration: underline;
+}
+
+.register-links i {
+  margin-right: 5px;
+}
+
+.server-info {
+  margin-top: 18px;
+  font-size: 13px;
+  font-style: italic;
+  background: #f5f5f5;
+  padding: 10px;
+  border-radius: 12px;
+  color: #666;
+}
+/* ===== BUTTON: ĐĂNG KÝ (Trang Đăng Ký) ===== */
+.register-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.register-btn i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.register-btn:hover {
+  background-color: #0056b3;
+  box-shadow: 0 6px 18px rgba(0, 123, 255, 0.6);
+  transform: translateY(-2px);
+}

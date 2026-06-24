@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cập nhật hồ sơ</title>
+    <link rel="stylesheet" href="/portal.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="portal-container">
+    <div class="topbar">
+        <div class="brand">
+            <h1>Hệ thống Quản lý Khám Bệnh</h1>
+            <p>Cập nhật hồ sơ cá nhân</p>
+        </div>
+        <div class="top-actions">
+            <a class="icon-btn" href="/portal/notifications" aria-label="Thông báo">
+                <i class="fa-regular fa-bell"></i>
+                <span class="badge" th:text="${notificationCount}">2</span>
+            </a>
+            <div class="user-chip">
+                <div class="avatar"><i class="fa-regular fa-user"></i></div>
+                <div class="name" th:text="${displayName}">Nguyễn Văn An</div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav">
+        <a class="active" href="/portal/profile"><i class="fa-regular fa-id-card"></i> Thông tin cá nhân</a>
+        <a href="/portal/appointments/new"><i class="fa-regular fa-calendar-plus"></i> Đặt lịch khám</a>
+        <a href="/portal/appointments"><i class="fa-regular fa-calendar-check"></i> Quản lý lịch khám</a>
+        <a href="/portal/benhan"><i class="fa-regular fa-file-lines"></i> Bệnh án</a>
+        <a href="/portal/schedule"><i class="fa-solid fa-pills"></i> Lịch cấp thuốc</a>
+        <a href="/portal/notifications"><i class="fa-regular fa-bell"></i> Thông báo</a>
+        <a href="/logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</a>
+    </nav>
+
+    <div class="content">
+        <section class="card">
+            <div class="card-header">
+                <h2 class="card-title">Chỉnh sửa thông tin</h2>
+                <a class="btn btn-muted" href="/portal/profile"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
+            </div>
+
+            <form action="/portal/profile" method="post">
+                <div class="grid">
+                    <div class="field">
+                        <i class="fa-regular fa-user"></i>
+                            <div>
+                                <div class="label">Họ và tên</div>
+                            <input name="name" class="input" th:value="${fullName}" required />
+                            </div>
+                    </div>
+                    <div class="field">
+                        <i class="fa-solid fa-phone"></i>
+                        <div>
+                            <div class="label">Số điện thoại</div>
+                            <input name="phone" class="input" th:value="${phone}" required />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <i class="fa-regular fa-calendar"></i>
+                        <div>
+                            <div class="label">Ngày sinh</div>
+                            <input type="date" name="dob" class="input" th:value="${dobIso}" required />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <i class="fa-solid fa-venus-mars"></i>
+                        <div>
+                            <div class="label">Giới tính</div>
+                            <select name="gender" class="input">
+                                <option value="Nam" th:selected="${gender == 'Nam'}">Nam</option>
+                                <option value="Nữ" th:selected="${gender == 'Nữ'}">Nữ</option>
+                                <option value="Khác" th:selected="${gender == 'Khác'}">Khác</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field" style="grid-column: 1 / -1;">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <div>
+                            <div class="label">Địa chỉ</div>
+                            <input name="address" class="input" th:value="${address}" />
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 14px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-primary" type="submit"><i class="fa-solid fa-save"></i> Lưu thay đổi</button>
+                    <a class="btn btn-muted" href="/portal/profile"><i class="fa-solid fa-xmark"></i> Hủy</a>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+<!-- Chatbox Fragment -->
+<div th:replace="~{fragments/chatbox :: chatbox}"></div>
+</body>
+</html>

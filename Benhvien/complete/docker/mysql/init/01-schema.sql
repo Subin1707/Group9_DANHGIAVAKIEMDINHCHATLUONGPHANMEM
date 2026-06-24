@@ -1,0 +1,92 @@
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS patient (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    dob DATE NOT NULL,
+    age INT,
+    gender VARCHAR(20) NOT NULL,
+    address VARCHAR(255),
+    phone VARCHAR(20)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS room (
+    id VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    doctorName VARCHAR(100) NOT NULL,
+    capacity INT DEFAULT NULL,
+    status VARCHAR(50) DEFAULT 'Hoạt động'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS login (
+    username VARCHAR(50) PRIMARY KEY,
+    password VARCHAR(100) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'USER',
+    patientId VARCHAR(50) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_login_patient FOREIGN KEY (patientId) REFERENCES patient(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS benhAn (
+    id VARCHAR(50) PRIMARY KEY,
+    patientId VARCHAR(50) NOT NULL,
+    ngayKham DATE NOT NULL,
+    trieuChung TEXT,
+    tienSuBenh TEXT,
+    chanDoan TEXT,
+    roomId VARCHAR(20),
+    CONSTRAINT fk_benhan_patient FOREIGN KEY (patientId) REFERENCES patient(id) ON DELETE CASCADE,
+    CONSTRAINT fk_benhan_room FOREIGN KEY (roomId) REFERENCES room(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS schedule (
+    id VARCHAR(50) PRIMARY KEY,
+    benhanId VARCHAR(50) NOT NULL,
+    patientId VARCHAR(50) NOT NULL,
+    date DATE NOT NULL,
+    tenthuoc VARCHAR(255),
+    soluong VARCHAR(50),
+    CONSTRAINT fk_schedule_benhan FOREIGN KEY (benhanId) REFERENCES benhAn(id) ON DELETE CASCADE,
+    CONSTRAINT fk_schedule_patient FOREIGN KEY (patientId) REFERENCES patient(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS appointment (
+    id VARCHAR(50) PRIMARY KEY,
+    patientId VARCHAR(50) NOT NULL,
+    roomId VARCHAR(20),
+    appointmentTime DATETIME NOT NULL,
+    note TEXT,
+    status ENUM('PENDING', 'CONFIRMED', 'CANCELLED') NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_appointment_patient FOREIGN KEY (patientId) REFERENCES patient(id) ON DELETE CASCADE,
+    CONSTRAINT fk_appointment_room FOREIGN KEY (roomId) REFERENCES room(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE INDEX idx_benhan_patientId ON benhAn(patientId);
+CREATE INDEX idx_benhan_roomId ON benhAn(roomId);
+CREATE INDEX idx_schedule_benhanId ON schedule(benhanId);
+CREATE INDEX idx_schedule_patientId ON schedule(patientId);
+CREATE INDEX idx_schedule_date ON schedule(date);
+CREATE INDEX idx_appointment_patient ON appointment(patientId);
+CREATE INDEX idx_appointment_time ON appointment(appointmentTime);
+CREATE INDEX idx_appointment_status ON appointment(status);
+
+INSERT IGNORE INTO patient (id, name, dob, age, gender, address, phone) VALUES
+('P001', 'Nguyễn Văn Thành', '2005-02-19', 21, 'Nam', 'Hà Nội', '0987654321'),
+('P002', 'Trần Thị Bình', '2000-11-02', 25, 'Nữ', 'Đà Nẵng', '0988888888');
+
+INSERT IGNORE INTO room (id, name, doctorName, capacity, status) VALUES
+('R001', 'Phòng Nội trú A', 'BS. Lê Minh', 20, 'Hoạt động'),
+('R002', 'Phòng Cấp cứu', 'BS. Nguyễn Lan', 10, 'Bảo trì');
+
+INSERT IGNORE INTO login (username, password, role, patientId) VALUES
+('admin', '123456', 'ADMIN', NULL),
+('patient1', '123456', 'USER', 'P001'),
+('patient2', '123456', 'USER', 'P002');
+
+INSERT IGNORE INTO benhAn (id, patientId, ngayKham, trieuChung, tienSuBenh, chanDoan, roomId) VALUES
+('BA001', 'P001', '2025-06-01', 'Sốt, ho', 'Tiền sử hen suyễn', 'Viêm phổi', 'R001');
+
+INSERT IGNORE INTO schedule (id, benhanId, patientId, date, tenthuoc, soluong) VALUES
+('BT001', 'BA001', 'P001', '2025-06-02', 'Paracetamol', '10 viên');

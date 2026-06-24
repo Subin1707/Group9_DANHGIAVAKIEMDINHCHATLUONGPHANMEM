@@ -1,0 +1,49 @@
+name: Maven JUnit Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: hospital
+          MYSQL_USER: hospital
+          MYSQL_PASSWORD: hospital_secret
+          MYSQL_ROOT_PASSWORD: root_secret
+          TZ: Asia/Ho_Chi_Minh
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uhospital -phospital_secret --silent"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Run database schema
+        working-directory: Benhvien/complete
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+          mysql -h 127.0.0.1 -P 3306 -uhospital -phospital_secret hospital < docker/mysql/init/01-schema.sql
+
+      - name: Run Maven tests
+        working-directory: Benhvien/complete
+        run: mvn test
