@@ -2,6 +2,7 @@ package com.example.servingwebcontent.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -50,37 +51,38 @@ public class PatientDatabase {
         try {
             conn = DatabaseConfig.getConnection();
             // Kiểm tra tồn tại
-            Statement checkStmt = conn.createStatement();
-            ResultSet rs = checkStmt.executeQuery("SELECT COUNT(*) FROM patient WHERE id = '" + p.getId() + "'");
+            String checkSql = "SELECT COUNT(*) FROM patient WHERE id = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+            checkStmt.setString(1, p.getId());
+            ResultSet rs = checkStmt.executeQuery();
             rs.next();
             boolean exists = rs.getInt(1) > 0;
             rs.close();
             checkStmt.close();
 
             if (exists) {
-                // Update
-                String sql = "UPDATE patient SET name='" + p.getName() +
-                        "', dob='" + new java.sql.Date(p.getDob().getTimeInMillis()) +
-                        "', age=" + p.getAge() +
-                        ", gender='" + p.getGender() +
-                        "', address='" + p.getAddress() +
-                        "', phone='" + p.getPhone() +
-                        "' WHERE id='" + p.getId() + "'";
-                Statement stmt = conn.createStatement();
-                stmt.executeUpdate(sql);
+                String sql = "UPDATE patient SET name=?, dob=?, age=?, gender=?, address=?, phone=? WHERE id=?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, p.getName());
+                stmt.setDate(2, new java.sql.Date(p.getDob().getTimeInMillis()));
+                stmt.setInt(3, p.getAge());
+                stmt.setString(4, p.getGender());
+                stmt.setString(5, p.getAddress());
+                stmt.setString(6, p.getPhone());
+                stmt.setString(7, p.getId());
+                stmt.executeUpdate();
                 stmt.close();
             } else {
-                // Insert
-                String sql = "INSERT INTO patient (id, name, dob, age, gender, address, phone) VALUES (" +
-                        "'" + p.getId() + "'," +
-                        "'" + p.getName() + "'," +
-                        "'" + new java.sql.Date(p.getDob().getTimeInMillis()) + "'," +
-                        p.getAge() + "," +
-                        "'" + p.getGender() + "'," +
-                        "'" + p.getAddress() + "'," +
-                        "'" + p.getPhone() + "')";
-                Statement stmt = conn.createStatement();
-                stmt.executeUpdate(sql);
+                String sql = "INSERT INTO patient (id, name, dob, age, gender, address, phone) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, p.getId());
+                stmt.setString(2, p.getName());
+                stmt.setDate(3, new java.sql.Date(p.getDob().getTimeInMillis()));
+                stmt.setInt(4, p.getAge());
+                stmt.setString(5, p.getGender());
+                stmt.setString(6, p.getAddress());
+                stmt.setString(7, p.getPhone());
+                stmt.executeUpdate();
                 stmt.close();
             }
             conn.close();
