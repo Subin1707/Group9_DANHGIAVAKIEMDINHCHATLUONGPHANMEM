@@ -34,6 +34,7 @@
         </div>
 
         <form id="chatbox-form" class="chatbox-form">
+            <input id="chatbox-csrf" type="hidden" th:value="${csrfToken}" />
             <textarea id="chatbox-input" rows="1" maxlength="2000"
                       placeholder="Nhập câu hỏi..." aria-label="Câu hỏi"></textarea>
             <button id="chatbox-send" type="submit" aria-label="Gửi câu hỏi">

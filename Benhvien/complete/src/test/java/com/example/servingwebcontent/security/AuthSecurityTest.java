@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockHttpSession;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.example.servingwebcontent.testutil.CsrfTestSupport.csrfPost;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -31,8 +33,29 @@ class AuthSecurityTest {
     }
 
     @Test
-    void loginSqlInjectionShouldNotLogin() throws Exception {
+    void postWithoutCsrfTokenShouldBeForbidden() throws Exception {
         mockMvc.perform(post("/login")
+                        .param("username", "admin")
+                        .param("password", "123456"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void postWithInvalidCsrfTokenShouldBeForbidden() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        CsrfTokenFilter.getOrCreateToken(session);
+
+        mockMvc.perform(post("/login")
+                        .session(session)
+                        .param(CsrfTokenFilter.PARAMETER_NAME, "invalid-token")
+                        .param("username", "admin")
+                        .param("password", "123456"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void loginSqlInjectionShouldNotLogin() throws Exception {
+        mockMvc.perform(csrfPost("/login")
                         .param("username", "' OR '1'='1")
                         .param("password", "' OR '1'='1"))
                 .andExpect(status().isOk())
@@ -42,7 +65,7 @@ class AuthSecurityTest {
 
     @Test
     void loginXssPayloadShouldNotLogin() throws Exception {
-        mockMvc.perform(post("/login")
+        mockMvc.perform(csrfPost("/login")
                         .param("username", "<script>alert(1)</script>")
                         .param("password", "123456"))
                 .andExpect(status().isOk())

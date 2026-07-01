@@ -37,6 +37,7 @@
             </h2>
             
             <form th:action="${editRoom == null} ? @{/room} : @{/room/update}" method="post" class="room-form">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                 <div class="form-row">
                     <div class="form-group">
                         <label for="id">Mã Phòng:</label>

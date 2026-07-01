@@ -38,6 +38,7 @@
             
             <!-- Form sửa bệnh án -->
             <form th:if="${editBenhan != null}" action="/benhan/update" method="post" class="benhan-form">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                 <input type="hidden" name="id" th:value="${editBenhan.id}">
                 
                 <div class="form-row">
@@ -117,6 +118,7 @@
 
             <!-- Form thêm bệnh án -->
             <form th:if="${editBenhan == null}" action="/benhan" method="post" class="benhan-form">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                 <div class="form-row">
                     <div class="form-group">
                         <label for="id">Mã Bệnh Án:</label>

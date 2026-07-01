@@ -49,6 +49,7 @@
                     </td>
                     <td style="white-space: nowrap;">
                         <form action="/appointments/manage/status" method="post" style="display:inline;">
+                            <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                             <input type="hidden" name="id" th:value="${a.id}">
                             <input type="hidden" name="status" value="CONFIRMED">
                             <button class="btn btn-search btn-sm" type="submit" th:disabled="${a.status == 'CONFIRMED'}">
@@ -56,6 +57,7 @@
                             </button>
                         </form>
                         <form action="/appointments/manage/status" method="post" style="display:inline;">
+                            <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                             <input type="hidden" name="id" th:value="${a.id}">
                             <input type="hidden" name="status" value="CANCELLED">
                             <button class="btn btn-reset btn-sm" type="submit" th:disabled="${a.status == 'CANCELLED'}">
@@ -63,6 +65,7 @@
                             </button>
                         </form>
                         <form th:if="${isAdmin}" action="/appointments/manage/delete" method="post" style="display:inline;">
+                            <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                             <input type="hidden" name="id" th:value="${a.id}">
                             <button class="btn btn-secondary btn-sm" type="submit" onclick="return confirm('Xóa lịch khám này?');">
                                 <i class="fas fa-trash"></i> Xóa

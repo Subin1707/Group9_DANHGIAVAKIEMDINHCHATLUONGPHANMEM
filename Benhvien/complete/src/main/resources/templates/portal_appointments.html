@@ -65,6 +65,7 @@
                     <td th:text="${a.note}">note</td>
                     <td>
                         <form th:if="${a.status != 'CONFIRMED' and a.status != 'CANCELLED'}" action="/portal/appointments/cancel" method="post" style="margin:0">
+                            <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                             <input type="hidden" name="id" th:value="${a.id}">
                             <button class="btn btn-muted" type="submit" onclick="return confirm('Hủy lịch này?');">
                                 <i class="fa-solid fa-xmark"></i> Hủy

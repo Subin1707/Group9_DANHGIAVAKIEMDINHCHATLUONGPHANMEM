@@ -119,6 +119,14 @@ test.describe('Login', () => {
     await page.click('a[href="/logout"]');
     await expect(page).toHaveURL(/login/);
   });
+
+  test('PW055 CSRF request without token is rejected', async ({ request }) => {
+    const response = await request.post('/api/chat', {
+      data: { message: 'Xin chao' }
+    });
+
+    expect(response.status()).toBe(403);
+  });
 });
 
 test.describe('Dashboard', () => {

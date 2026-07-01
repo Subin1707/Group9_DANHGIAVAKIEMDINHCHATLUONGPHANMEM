@@ -44,6 +44,7 @@
             </div>
 
             <form action="/portal/profile" method="post">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                 <div class="grid">
                     <div class="field">
                         <i class="fa-regular fa-user"></i>

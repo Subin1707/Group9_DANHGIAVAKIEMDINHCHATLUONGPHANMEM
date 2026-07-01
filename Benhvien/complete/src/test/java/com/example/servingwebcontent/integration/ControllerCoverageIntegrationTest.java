@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.example.servingwebcontent.testutil.CsrfTestSupport.csrfPost;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -135,7 +136,7 @@ class ControllerCoverageIntegrationTest {
 
     @Test
     void adminStaffPasswordMismatchShouldShowError() throws Exception {
-        mockMvc.perform(post("/admin/staff")
+        mockMvc.perform(csrfPost("/admin/staff")
                         .param("username", "staff_mismatch")
                         .param("password", "123456")
                         .param("confirmPassword", "654321")
@@ -168,7 +169,7 @@ class ControllerCoverageIntegrationTest {
 
     @Test
     void appointmentsManageStatusShouldRedirect() throws Exception {
-        mockMvc.perform(post("/appointments/manage/status")
+        mockMvc.perform(csrfPost("/appointments/manage/status")
                         .param("id", "NOT_EXISTS")
                         .param("status", "bad-status")
                         .sessionAttr(AuthConstants.SESSION_USERNAME, "staff")
@@ -197,7 +198,7 @@ class ControllerCoverageIntegrationTest {
 
     @Test
     void portalPasswordMismatchShouldReturnPasswordView() throws Exception {
-        mockMvc.perform(post("/portal/password")
+        mockMvc.perform(csrfPost("/portal/password")
                         .param("currentPassword", "123456")
                         .param("newPassword", "abcdef")
                         .param("confirmPassword", "ghijkl")

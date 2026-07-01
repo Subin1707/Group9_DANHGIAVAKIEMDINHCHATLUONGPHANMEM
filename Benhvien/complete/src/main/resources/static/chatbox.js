@@ -7,6 +7,7 @@
   const form = document.getElementById('chatbox-form');
   const input = document.getElementById('chatbox-input');
   const send = document.getElementById('chatbox-send');
+  const csrf = document.getElementById('chatbox-csrf');
   const messages = document.getElementById('chatbox-messages');
   const suggestions = document.querySelectorAll('.chatbox-suggestions button');
   if (!panel || !toggle || !form) return;
@@ -58,7 +59,10 @@
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrf ? csrf.value : ''
+        },
         body: JSON.stringify({ message: text, history: requestHistory })
       });
       const data = await response.json().catch(() => ({}));

@@ -19,6 +19,7 @@ import java.util.Calendar;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.example.servingwebcontent.testutil.CsrfTestSupport.csrfPost;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -56,7 +57,7 @@ class MedicalWorkflowIntegrationTest {
     void postPatientShouldCreatePatientAndShowSuccess() throws Exception {
         patientDatabase.deletePatientById("TEST_POST_PATIENT");
 
-        mockMvc.perform(post("/patients")
+        mockMvc.perform(csrfPost("/patients")
                         .param("id", "TEST_POST_PATIENT")
                         .param("name", "Post Patient")
                         .param("dob", "2001-01-01")
@@ -75,7 +76,7 @@ class MedicalWorkflowIntegrationTest {
 
     @Test
     void updatePatientShouldShowSuccess() throws Exception {
-        mockMvc.perform(post("/patients/update")
+        mockMvc.perform(csrfPost("/patients/update")
                         .param("id", PATIENT_ID)
                         .param("name", "Updated Patient")
                         .param("dob", "2001-01-01")
@@ -104,7 +105,7 @@ class MedicalWorkflowIntegrationTest {
     void postRoomShouldCreateRoomAndShowSuccess() throws Exception {
         roomDatabase.deleteRoom("TEST_POST_ROOM");
 
-        mockMvc.perform(post("/room")
+        mockMvc.perform(csrfPost("/room")
                         .param("id", "TEST_POST_ROOM")
                         .param("name", "Post Room")
                         .param("doctorName", "BS Post")
@@ -121,7 +122,7 @@ class MedicalWorkflowIntegrationTest {
 
     @Test
     void updateRoomShouldShowSuccess() throws Exception {
-        mockMvc.perform(post("/room/update")
+        mockMvc.perform(csrfPost("/room/update")
                         .param("id", ROOM_ID)
                         .param("name", "Updated Room")
                         .param("doctorName", "BS Updated")
@@ -146,7 +147,7 @@ class MedicalWorkflowIntegrationTest {
 
     @Test
     void postBenhanShouldCreateRecordAndShowSuccess() throws Exception {
-        mockMvc.perform(post("/benhan")
+        mockMvc.perform(csrfPost("/benhan")
                         .param("id", BENHAN_ID)
                         .param("patientId", PATIENT_ID)
                         .param("ngayKham", "2026-01-10")
@@ -165,7 +166,7 @@ class MedicalWorkflowIntegrationTest {
     void duplicateBenhanForPatientShouldShowError() throws Exception {
         createBenhan();
 
-        mockMvc.perform(post("/benhan")
+        mockMvc.perform(csrfPost("/benhan")
                         .param("id", "TEST_FLOW_BA_2")
                         .param("patientId", PATIENT_ID)
                         .param("ngayKham", "2026-01-11")
@@ -198,7 +199,7 @@ class MedicalWorkflowIntegrationTest {
     void updateBenhanShouldShowSuccess() throws Exception {
         createBenhan();
 
-        mockMvc.perform(post("/benhan/update")
+        mockMvc.perform(csrfPost("/benhan/update")
                         .param("id", BENHAN_ID)
                         .param("patientId", PATIENT_ID)
                         .param("ngayKham", "2026-01-12")
@@ -227,7 +228,7 @@ class MedicalWorkflowIntegrationTest {
     void postScheduleShouldCreateScheduleAndShowSuccess() throws Exception {
         createBenhan();
 
-        mockMvc.perform(post("/schedule")
+        mockMvc.perform(csrfPost("/schedule")
                         .param("id", SCHEDULE_ID)
                         .param("benhanId", BENHAN_ID)
                         .param("patientId", PATIENT_ID)
@@ -246,7 +247,7 @@ class MedicalWorkflowIntegrationTest {
         createBenhan();
         createSchedule();
 
-        mockMvc.perform(post("/schedule")
+        mockMvc.perform(csrfPost("/schedule")
                         .param("id", "TEST_FLOW_BT_2")
                         .param("benhanId", BENHAN_ID)
                         .param("patientId", PATIENT_ID)
@@ -280,7 +281,7 @@ class MedicalWorkflowIntegrationTest {
         createBenhan();
         createSchedule();
 
-        mockMvc.perform(post("/schedule/update")
+        mockMvc.perform(csrfPost("/schedule/update")
                         .param("id", SCHEDULE_ID)
                         .param("benhanId", BENHAN_ID)
                         .param("patientId", PATIENT_ID)

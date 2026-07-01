@@ -37,6 +37,7 @@
             </h2>
             
             <form th:action="${editPatient == null} ? @{/patients} : @{/patients/update}" method="post" class="patient-form">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                 <div class="form-row">
                     <div class="form-group">
                         <label for="id">Mã Bệnh Nhân:</label>

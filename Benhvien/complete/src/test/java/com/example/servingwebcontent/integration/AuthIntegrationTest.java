@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.example.servingwebcontent.testutil.CsrfTestSupport.csrfPost;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -50,7 +51,7 @@ class AuthIntegrationTest {
 
     @Test
     void loginAdminSuccessShouldRedirectDashboard() throws Exception {
-        mockMvc.perform(post("/login")
+        mockMvc.perform(csrfPost("/login")
                         .param("username", "admin")
                         .param("password", "123456"))
                 .andExpect(status().is3xxRedirection())
@@ -59,7 +60,7 @@ class AuthIntegrationTest {
 
     @Test
     void loginStaffSuccessShouldRedirectDashboard() throws Exception {
-        mockMvc.perform(post("/login")
+        mockMvc.perform(csrfPost("/login")
                         .param("username", STAFF_USERNAME)
                         .param("password", "123456"))
                 .andExpect(status().is3xxRedirection())
@@ -68,7 +69,7 @@ class AuthIntegrationTest {
 
     @Test
     void loginUserSuccessShouldRedirectPortalProfile() throws Exception {
-        mockMvc.perform(post("/login")
+        mockMvc.perform(csrfPost("/login")
                         .param("username", USER_USERNAME)
                         .param("password", "123456"))
                 .andExpect(status().is3xxRedirection())
@@ -77,7 +78,7 @@ class AuthIntegrationTest {
 
     @Test
     void loginWrongPasswordShouldShowError() throws Exception {
-        mockMvc.perform(post("/login")
+        mockMvc.perform(csrfPost("/login")
                         .param("username", "admin")
                         .param("password", "wrong"))
                 .andExpect(status().isOk())
@@ -87,7 +88,7 @@ class AuthIntegrationTest {
 
     @Test
     void loginEmptyUsernameShouldShowError() throws Exception {
-        mockMvc.perform(post("/login")
+        mockMvc.perform(csrfPost("/login")
                         .param("username", "")
                         .param("password", "123456"))
                 .andExpect(status().isOk())
@@ -97,7 +98,7 @@ class AuthIntegrationTest {
 
     @Test
     void loginEmptyPasswordShouldShowError() throws Exception {
-        mockMvc.perform(post("/login")
+        mockMvc.perform(csrfPost("/login")
                         .param("username", "admin")
                         .param("password", ""))
                 .andExpect(status().isOk())

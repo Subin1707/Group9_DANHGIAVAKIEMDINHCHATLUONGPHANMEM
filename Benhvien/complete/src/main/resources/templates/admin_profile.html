@@ -43,6 +43,7 @@
     <div class="form-section" th:if="${profile.username != 'admin'}">
         <h2><i class="fas fa-link"></i> Liên kết bệnh nhân</h2>
         <form th:action="@{'/admin/accounts/' + ${profile.username} + '/patient'}" method="post" class="patient-form">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}" />
             <div class="form-row">
                 <div class="form-group">
                     <label for="patientId">Patient ID (ví dụ: P001)</label>
@@ -61,6 +62,7 @@
     <div class="form-section">
         <h2><i class="fas fa-user-tag"></i> Quyền (Role)</h2>
         <form th:action="@{'/admin/accounts/' + ${profile.username} + '/role'}" method="post" class="patient-form">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}" />
             <div class="form-row">
                 <div class="form-group">
                     <label for="role">Role</label>
@@ -86,6 +88,7 @@
     <div class="form-section">
         <h2><i class="fas fa-key"></i> Reset mật khẩu</h2>
         <form th:action="@{'/admin/accounts/' + ${profile.username} + '/password'}" method="post" class="patient-form">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}" />
             <div class="form-row">
                 <div class="form-group">
                     <label for="password">Mật khẩu mới</label>
@@ -107,6 +110,7 @@
     <div class="form-section" th:if="${profile.username != 'admin'}">
         <h2><i class="fas fa-trash"></i> Xóa tài khoản</h2>
         <form th:action="@{'/admin/accounts/' + ${profile.username} + '/delete'}" method="post">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}" />
             <div class="form-actions">
                 <button class="btn btn-reset" type="submit" onclick="return confirm('Xóa tài khoản này?');">
                     <i class="fas fa-trash"></i> Xóa vĩnh viễn

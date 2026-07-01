@@ -25,6 +25,7 @@ import java.util.Calendar;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.example.servingwebcontent.testutil.CsrfTestSupport.csrfPost;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -82,7 +83,7 @@ class PortalAndAdminIntegrationTest {
 
     @Test
     void profileUpdateShouldRedirectProfile() throws Exception {
-        mockMvc.perform(post("/portal/profile")
+        mockMvc.perform(csrfPost("/portal/profile")
                         .param("name", "Portal Updated")
                         .param("phone", "0999999999")
                         .param("dob", "2000-02-02")
@@ -105,7 +106,7 @@ class PortalAndAdminIntegrationTest {
 
     @Test
     void passwordTooShortShouldReturnError() throws Exception {
-        mockMvc.perform(post("/portal/password")
+        mockMvc.perform(csrfPost("/portal/password")
                         .param("currentPassword", "123456")
                         .param("newPassword", "123")
                         .param("confirmPassword", "123")
@@ -118,7 +119,7 @@ class PortalAndAdminIntegrationTest {
 
     @Test
     void passwordWrongCurrentShouldReturnError() throws Exception {
-        mockMvc.perform(post("/portal/password")
+        mockMvc.perform(csrfPost("/portal/password")
                         .param("currentPassword", "wrong")
                         .param("newPassword", "abcdef")
                         .param("confirmPassword", "abcdef")
@@ -131,7 +132,7 @@ class PortalAndAdminIntegrationTest {
 
     @Test
     void passwordChangeSuccessShouldReturnSuccess() throws Exception {
-        mockMvc.perform(post("/portal/password")
+        mockMvc.perform(csrfPost("/portal/password")
                         .param("currentPassword", "123456")
                         .param("newPassword", "abcdef")
                         .param("confirmPassword", "abcdef")
@@ -173,7 +174,7 @@ class PortalAndAdminIntegrationTest {
 
     @Test
     void createAppointmentInvalidTimeShouldReturnError() throws Exception {
-        mockMvc.perform(post("/portal/appointments")
+        mockMvc.perform(csrfPost("/portal/appointments")
                         .param("roomId", ROOM_ID)
                         .param("appointmentTime", "not-a-time")
                         .param("note", "Invalid")
@@ -200,7 +201,7 @@ class PortalAndAdminIntegrationTest {
     void cancelOwnPendingAppointmentShouldRedirect() throws Exception {
         createAppointment("PENDING");
 
-        mockMvc.perform(post("/portal/appointments/cancel")
+        mockMvc.perform(csrfPost("/portal/appointments/cancel")
                         .param("id", APPOINTMENT_ID)
                         .sessionAttr(AuthConstants.SESSION_USERNAME, USERNAME)
                         .sessionAttr(AuthConstants.SESSION_ROLE, "USER"))
@@ -217,7 +218,7 @@ class PortalAndAdminIntegrationTest {
                 .andExpect(view().name("admin_profile"))
                 .andExpect(model().attributeExists("profile"));
 
-        mockMvc.perform(post("/admin/accounts/" + USERNAME + "/role")
+        mockMvc.perform(csrfPost("/admin/accounts/" + USERNAME + "/role")
                         .param("role", "STAFF")
                         .sessionAttr(AuthConstants.SESSION_USERNAME, "admin")
                         .sessionAttr(AuthConstants.SESSION_ROLE, "ADMIN"))
@@ -228,7 +229,7 @@ class PortalAndAdminIntegrationTest {
 
     @Test
     void adminPasswordMismatchShouldReturnProfileError() throws Exception {
-        mockMvc.perform(post("/admin/accounts/" + USERNAME + "/password")
+        mockMvc.perform(csrfPost("/admin/accounts/" + USERNAME + "/password")
                         .param("password", "abcdef")
                         .param("confirmPassword", "ghijkl")
                         .sessionAttr(AuthConstants.SESSION_USERNAME, "admin")
@@ -240,7 +241,7 @@ class PortalAndAdminIntegrationTest {
 
     @Test
     void adminCanUpdatePatientLinkAndDeleteUser() throws Exception {
-        mockMvc.perform(post("/admin/accounts/" + USERNAME + "/patient")
+        mockMvc.perform(csrfPost("/admin/accounts/" + USERNAME + "/patient")
                         .param("patientId", PATIENT_ID)
                         .sessionAttr(AuthConstants.SESSION_USERNAME, "admin")
                         .sessionAttr(AuthConstants.SESSION_ROLE, "ADMIN"))
@@ -248,7 +249,7 @@ class PortalAndAdminIntegrationTest {
                 .andExpect(view().name("admin_profile"))
                 .andExpect(model().attributeExists("successMessage"));
 
-        mockMvc.perform(post("/admin/accounts/" + USERNAME + "/delete")
+        mockMvc.perform(csrfPost("/admin/accounts/" + USERNAME + "/delete")
                         .sessionAttr(AuthConstants.SESSION_USERNAME, "admin")
                         .sessionAttr(AuthConstants.SESSION_ROLE, "ADMIN"))
                 .andExpect(status().is3xxRedirection())

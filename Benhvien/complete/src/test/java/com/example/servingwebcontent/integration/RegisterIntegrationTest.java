@@ -8,6 +8,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static com.example.servingwebcontent.testutil.CsrfTestSupport.csrfPost;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -26,7 +27,7 @@ class RegisterIntegrationTest {
 
     @Test
     void registerPasswordMismatchShouldShowError() throws Exception {
-        mockMvc.perform(post("/register")
+        mockMvc.perform(csrfPost("/register")
                         .param("username", "register_mismatch")
                         .param("password", "123456")
                         .param("confirmPassword", "654321"))
@@ -37,7 +38,7 @@ class RegisterIntegrationTest {
 
     @Test
     void registerEmptyUsernameShouldShowError() throws Exception {
-        mockMvc.perform(post("/register")
+        mockMvc.perform(csrfPost("/register")
                         .param("username", "")
                         .param("password", "123456")
                         .param("confirmPassword", "123456"))
@@ -48,7 +49,7 @@ class RegisterIntegrationTest {
 
     @Test
     void registerEmptyPasswordShouldShowError() throws Exception {
-        mockMvc.perform(post("/register")
+        mockMvc.perform(csrfPost("/register")
                         .param("username", "register_empty_password")
                         .param("password", "")
                         .param("confirmPassword", ""))

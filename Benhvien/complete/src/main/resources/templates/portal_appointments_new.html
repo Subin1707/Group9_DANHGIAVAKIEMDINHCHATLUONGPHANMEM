@@ -47,6 +47,7 @@
                 <span th:text="${errorMessage}">Lỗi</span>
             </div>
             <form action="/portal/appointments" method="post" style="margin-top: 14px;">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}" />
                 <div class="grid">
                     <div class="field">
                         <i class="fa-regular fa-hospital"></i>
