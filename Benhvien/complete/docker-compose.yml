@@ -42,5 +42,16 @@ services:
       retries: 20
       start_period: 20s
 
+  zap:
+    image: ghcr.io/zaproxy/zaproxy:stable
+    container_name: hospital-zap
+    tty: true
+    stdin_open: true
+    depends_on:
+      - app
+    volumes:
+      - ./docker/zap:/zap/wrk
+    command: sleep infinity
+
 volumes:
   hospital_mysql_data:

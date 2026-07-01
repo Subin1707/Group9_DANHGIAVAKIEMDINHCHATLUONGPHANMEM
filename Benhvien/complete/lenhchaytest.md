@@ -120,3 +120,29 @@ Dung Spring Boot bang `Ctrl + C` tai Terminal thu nhat, sau do dung Docker:
 cd E:\UDPT\Benhvien\complete
 docker compose down
 ```
+
+## 11. Chay OWASP ZAP Security Scan
+
+Khoi dong app, MySQL va ZAP trong Docker:
+
+```powershell
+cd E:\UDPT\Benhvien\complete
+docker compose up -d --build
+docker compose ps
+```
+
+Chay Baseline Scan truoc:
+
+```powershell
+.\docker\zap\scripts\baseline-scan.bat
+Start-Process ".\docker\zap\reports\baseline-report.html"
+```
+
+Chay Full Scan tren moi truong local/test:
+
+```powershell
+.\docker\zap\scripts\full-scan.bat
+Start-Process ".\docker\zap\reports\full-report.html"
+```
+
+Baseline Scan la quet thu dong. Full Scan moi bao gom active scan va co the gui payload tan cong den ung dung.
