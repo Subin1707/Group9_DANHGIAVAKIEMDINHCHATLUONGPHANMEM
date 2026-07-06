@@ -1,0 +1,95 @@
+{
+  "info": {
+    "_postman_id": "07eedf78-79cf-459e-87c5-hospital-api",
+    "name": "Hospital",
+    "description": "Kiểm thử các chức năng chính của hệ thống Hospital. Chạy tuần tự để lấy CSRF và duy trì cookie phiên đăng nhập.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Authentication",
+      "item": [
+        {
+          "name": "GET Login Page - Get CSRF",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Login page returns 200', () => pm.response.to.have.status(200));",
+              "const match = pm.response.text().match(/name=[\"']_csrf[\"'][^>]*value=[\"']([^\"']+)[\"']/i);",
+              "pm.test('CSRF token exists', () => pm.expect(match).to.not.equal(null));",
+              "if (match) pm.environment.set('csrfToken', match[1]);"
+            ]}
+          }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/login" }
+        },
+        {
+          "name": "POST Login Admin",
+          "event": [{
+            "listen": "test",
+            "script": { "exec": [
+              "pm.test('Login request succeeds', () => pm.expect(pm.response.code).to.be.oneOf([200, 302]));",
+              "pm.test('Admin reaches dashboard', () => pm.expect(pm.response.text()).to.include('dashboard-container'));"
+            ]}
+          }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "{{username}}" },
+                { "key": "password", "value": "{{password}}" },
+                { "key": "_csrf", "value": "{{csrfToken}}" }
+              ]
+            },
+            "url": "{{baseUrl}}/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Hospital Functions",
+      "item": [
+        { "name": "GET Dashboard", "request": { "method": "GET", "url": "{{baseUrl}}/dashboard" } },
+        { "name": "GET Patients", "request": { "method": "GET", "url": "{{baseUrl}}/patients" } },
+        { "name": "GET Medical Records", "request": { "method": "GET", "url": "{{baseUrl}}/benhan" } },
+        { "name": "GET Rooms", "request": { "method": "GET", "url": "{{baseUrl}}/room" } },
+        { "name": "GET Medication Schedule", "request": { "method": "GET", "url": "{{baseUrl}}/schedule" } },
+        { "name": "GET Appointments", "request": { "method": "GET", "url": "{{baseUrl}}/appointments/manage" } },
+        { "name": "GET Staff Management", "request": { "method": "GET", "url": "{{baseUrl}}/admin/staff" } },
+        { "name": "GET Account Management", "request": { "method": "GET", "url": "{{baseUrl}}/admin/accounts" } }
+      ],
+      "event": [{
+        "listen": "test",
+        "script": { "exec": [
+          "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+          "pm.test('Authenticated page is returned', () => pm.expect(pm.response.text()).to.not.include('form action=\"/login\"'));"
+        ]}
+      }]
+    },
+    {
+      "name": "03 - API and Security",
+      "item": [
+        {
+          "name": "GET Room Count",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Room count returns 200', () => pm.response.to.have.status(200));"
+          ] } }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/room/count" }
+        },
+        {
+          "name": "POST Chat Without CSRF - Rejected",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Missing CSRF is rejected', () => pm.response.to.have.status(403));"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"message\": \"Xin chao\",\n  \"history\": []\n}" },
+            "url": "{{baseUrl}}/api/chat"
+          }
+        }
+      ]
+    }
+  ]
+}
