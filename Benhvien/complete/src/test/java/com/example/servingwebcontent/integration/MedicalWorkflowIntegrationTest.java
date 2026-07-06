@@ -6,17 +6,22 @@ import com.example.servingwebcontent.database.BenhanDatabase;
 import com.example.servingwebcontent.database.PatientDatabase;
 import com.example.servingwebcontent.database.RoomDatabase;
 import com.example.servingwebcontent.database.ScheduleDatabase;
+import com.example.servingwebcontent.database.DatabaseConfig;
 import com.example.servingwebcontent.security.AuthConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Calendar;
+import java.sql.Connection;
 
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static com.example.servingwebcontent.testutil.CsrfTestSupport.csrfPost;
@@ -24,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Timeout(30)
 class MedicalWorkflowIntegrationTest {
 
     private static final String PATIENT_ID = "TEST_FLOW_PATIENT";
@@ -34,6 +40,20 @@ class MedicalWorkflowIntegrationTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @BeforeAll
+    static void requireDatabase() {
+        assumeTrue(databaseIsAvailable(),
+                "MySQL test database is unavailable at localhost:3306; start Docker Compose first");
+    }
+
+    private static boolean databaseIsAvailable() {
+        try (Connection ignored = DatabaseConfig.getConnection()) {
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
 
     private final PatientDatabase patientDatabase = new PatientDatabase();
     private final RoomDatabase roomDatabase = new RoomDatabase();

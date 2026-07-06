@@ -165,11 +165,15 @@ class PortalAndAdminIntegrationTest {
 
     @Test
     void portalNotificationsShouldReturnView() throws Exception {
+        createAppointment("CONFIRMED");
+
         mockMvc.perform(get("/portal/notifications")
                         .sessionAttr(AuthConstants.SESSION_USERNAME, USERNAME)
                         .sessionAttr(AuthConstants.SESSION_ROLE, "USER"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("portal_notifications"));
+                .andExpect(view().name("portal_notifications"))
+                .andExpect(model().attributeExists("notifications"))
+                .andExpect(model().attribute("notificationCount", 2));
     }
 
     @Test

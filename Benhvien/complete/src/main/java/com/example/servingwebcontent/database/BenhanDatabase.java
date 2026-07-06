@@ -41,7 +41,10 @@ public class BenhanDatabase {
                 benhans.add(benhan);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            // Avoid flooding Maven Surefire's output channel with a potentially
+            // enormous JDBC exception chain. The concise message is enough for
+            // controllers to report an empty result while tests remain responsive.
+            System.err.println("Cannot load medical records: " + e.getMessage());
         } finally {
             try { if (rs != null) rs.close(); } catch (Exception e) {}
             try { if (stmt != null) stmt.close(); } catch (Exception e) {}

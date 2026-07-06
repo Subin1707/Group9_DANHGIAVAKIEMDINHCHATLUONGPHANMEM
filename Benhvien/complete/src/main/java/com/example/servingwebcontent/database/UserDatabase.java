@@ -165,17 +165,21 @@ public class UserDatabase {
 
     public String getLinkedPatientId(String username) {
         if (username == null || username.isBlank()) return null;
-        if (!patientIdColumnAvailable) return username;
-
         String sql = "SELECT patientId FROM login WHERE LOWER(username) = LOWER(?) LIMIT 1";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection()) {
+            // getConnection() performs the one-time schema inspection. Checking
+            // this flag before opening a connection made the first portal request
+            // fall back to the username instead of the linked patient ID.
+            if (!patientIdColumnAvailable) return username;
 
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    String patientId = rs.getString("patientId");
-                    return (patientId == null || patientId.isBlank()) ? username : patientId;
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setString(1, username);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        String patientId = rs.getString("patientId");
+                        return (patientId == null || patientId.isBlank()) ? username : patientId;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -186,15 +190,16 @@ public class UserDatabase {
 
     public boolean updateLinkedPatientId(String username, String patientId) {
         if (username == null || username.isBlank()) return false;
-        if (!patientIdColumnAvailable) return false;
-
         String sql = "UPDATE login SET patientId = ? WHERE LOWER(username) = LOWER(?)";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection()) {
+            if (!patientIdColumnAvailable) return false;
 
-            ps.setString(1, patientId);
-            ps.setString(2, username);
-            return ps.executeUpdate() > 0;
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+                ps.setString(1, patientId);
+                ps.setString(2, username);
+                return ps.executeUpdate() > 0;
+            }
         } catch (Exception e) {
             return false;
         }

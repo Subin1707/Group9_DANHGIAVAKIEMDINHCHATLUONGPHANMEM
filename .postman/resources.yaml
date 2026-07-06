@@ -1,0 +1,9 @@
+# Use this workspace to collaborate
+workspace:
+  id: 4a6fb276-1769-4e0c-8475-ffefec2c8beb
+
+localResources:
+  collections:
+    - ../Benhvien/complete/postman/Hospital.postman_collection.json
+  environments:
+    - ../Benhvien/complete/postman/Hospital.postman_environment.json

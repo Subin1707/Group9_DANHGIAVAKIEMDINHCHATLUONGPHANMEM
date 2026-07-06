@@ -58,8 +58,43 @@ public class PortalController {
     }
 
     private void addPortalHeader(Model model, String username) {
-        model.addAttribute("notificationCount", 2);
+        String patientId = linkedPatientId(username);
+        model.addAttribute("notificationCount", buildNotifications(patientId).size());
         model.addAttribute("displayName", username);
+    }
+
+    private List<Map<String, String>> buildNotifications(String patientId) {
+        List<Map<String, String>> notifications = new ArrayList<>();
+        if (patientId == null || patientId.isBlank()) return notifications;
+
+        for (Appointment appointment : appointmentDb.findByPatientId(patientId)) {
+            Map<String, String> item = new HashMap<>();
+            String status = appointment.getStatus() != null
+                    ? appointment.getStatus().toUpperCase() : "PENDING";
+            String statusText = switch (status) {
+                case "CONFIRMED" -> "đã được xác nhận";
+                case "CANCELLED" -> "đã bị hủy";
+                default -> "đang chờ xác nhận";
+            };
+            item.put("type", "appointment");
+            item.put("title", "Lịch khám " + statusText);
+            item.put("message", "Mã " + appointment.getId() + " • Phòng "
+                    + (appointment.getRoomId() != null ? appointment.getRoomId() : "chưa xếp"));
+            item.put("dateStr", appointment.getAppointmentTime() != null
+                    ? new SimpleDateFormat("dd/MM/yyyy HH:mm").format(appointment.getAppointmentTime()) : "");
+            notifications.add(item);
+        }
+
+        for (Schedule schedule : scheduleDb.findScheduleByPatientId(patientId)) {
+            Map<String, String> item = new HashMap<>();
+            item.put("type", "medicine");
+            item.put("title", "Lịch cấp thuốc");
+            item.put("message", schedule.getTenthuoc() + " • " + schedule.getSoluong());
+            item.put("dateStr", schedule.getDate() != null
+                    ? new SimpleDateFormat("dd/MM/yyyy").format(schedule.getDate().getTime()) : "");
+            notifications.add(item);
+        }
+        return notifications;
     }
 
     @GetMapping("/portal")
@@ -239,6 +274,7 @@ public class PortalController {
 
         String username = sessionUsername(session);
         addPortalHeader(model, username);
+        model.addAttribute("notifications", buildNotifications(linkedPatientId(username)));
         return "portal_notifications";
     }
 

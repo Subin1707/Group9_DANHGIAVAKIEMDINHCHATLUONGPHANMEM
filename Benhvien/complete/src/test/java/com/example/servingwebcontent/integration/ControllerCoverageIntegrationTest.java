@@ -1,11 +1,25 @@
 package com.example.servingwebcontent.integration;
 
 import com.example.servingwebcontent.security.AuthConstants;
+import com.example.servingwebcontent.Model.Patient;
+import com.example.servingwebcontent.Model.Room;
+import com.example.servingwebcontent.database.PatientDatabase;
+import com.example.servingwebcontent.database.RoomDatabase;
+import com.example.servingwebcontent.database.DatabaseConfig;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Calendar;
+import java.sql.Connection;
+
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,10 +28,47 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Timeout(30)
 class ControllerCoverageIntegrationTest {
+
+    private static final String PATIENT_ID = "TEST_COVERAGE_PATIENT";
+    private static final String ROOM_ID = "TEST_COVERAGE_ROOM";
+
+    private final PatientDatabase patientDatabase = new PatientDatabase();
+    private final RoomDatabase roomDatabase = new RoomDatabase();
 
     @Autowired
     MockMvc mockMvc;
+
+    @BeforeAll
+    static void requireDatabase() {
+        assumeTrue(databaseIsAvailable(),
+                "MySQL test database is unavailable at localhost:3306; start Docker Compose first");
+    }
+
+    private static boolean databaseIsAvailable() {
+        try (Connection ignored = DatabaseConfig.getConnection()) {
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    @BeforeEach
+    void createFixtures() {
+        Calendar dob = Calendar.getInstance();
+        dob.add(Calendar.YEAR, -25);
+        patientDatabase.saveOrUpdatePatient(new Patient(
+                PATIENT_ID, "Coverage Patient", dob, 25, "Nam", "Ha Noi", "0900000001"));
+        roomDatabase.saveOrUpdateRoom(new Room(
+                ROOM_ID, "Coverage Room", "BS Coverage", 5, "Hoat dong"));
+    }
+
+    @AfterEach
+    void removeFixtures() {
+        patientDatabase.deletePatientById(PATIENT_ID);
+        roomDatabase.deleteRoom(ROOM_ID);
+    }
 
     @Test
     void patientsPageWithStaffSessionShouldReturnPatientsView() throws Exception {
@@ -41,7 +92,7 @@ class ControllerCoverageIntegrationTest {
 
     @Test
     void patientEditShouldReturnPatientsView() throws Exception {
-        mockMvc.perform(get("/patients/edit/P001")
+        mockMvc.perform(get("/patients/edit/" + PATIENT_ID)
                         .sessionAttr(AuthConstants.SESSION_USERNAME, "staff")
                         .sessionAttr(AuthConstants.SESSION_ROLE, "STAFF"))
                 .andExpect(status().isOk())
@@ -70,11 +121,11 @@ class ControllerCoverageIntegrationTest {
 
     @Test
     void roomApiShouldReturnJson() throws Exception {
-        mockMvc.perform(get("/room/api/R001")
+        mockMvc.perform(get("/room/api/" + ROOM_ID)
                         .sessionAttr(AuthConstants.SESSION_USERNAME, "staff")
                         .sessionAttr(AuthConstants.SESSION_ROLE, "STAFF"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("R001"));
+                .andExpect(jsonPath("$.id").value(ROOM_ID));
     }
 
     @Test

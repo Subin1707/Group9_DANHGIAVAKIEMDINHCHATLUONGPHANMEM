@@ -42,7 +42,21 @@
                 <h2 class="card-title">Thông báo</h2>
             </div>
 
-            <div class="muted">Chưa có thông báo mới.</div>
+            <div th:if="${notifications == null or notifications.isEmpty()}" class="muted">
+                Chưa có thông báo mới.
+            </div>
+
+            <div th:if="${notifications != null and !notifications.isEmpty()}" class="grid">
+                <article class="card" th:each="notification : ${notifications}">
+                    <div class="card-header">
+                        <h3 class="card-title" th:text="${notification.title}">Thông báo</h3>
+                        <span class="pill"
+                              th:classappend="${notification.type == 'appointment'} ? ' warn' : ''"
+                              th:text="${notification.dateStr}">01/01/2026</span>
+                    </div>
+                    <p th:text="${notification.message}">Nội dung thông báo</p>
+                </article>
+            </div>
         </section>
     </div>
 </div>
@@ -51,4 +65,3 @@
 <div th:replace="~{fragments/chatbox :: chatbox}"></div>
 </body>
 </html>
-

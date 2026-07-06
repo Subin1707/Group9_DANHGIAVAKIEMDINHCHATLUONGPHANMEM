@@ -37,7 +37,7 @@
             <input id="chatbox-csrf" type="hidden" th:value="${csrfToken}" />
             <textarea id="chatbox-input" rows="1" maxlength="2000"
                       placeholder="Nhập câu hỏi..." aria-label="Câu hỏi"></textarea>
-            <button id="chatbox-send" type="submit" aria-label="Gửi câu hỏi">
+            <button id="chatbox-send" class="chatbox-send" type="submit" aria-label="Gửi câu hỏi" title="Gửi">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 4 17 8-17 8 3-8-3-8Zm3 8h14"/></svg>
             </button>
         </form>

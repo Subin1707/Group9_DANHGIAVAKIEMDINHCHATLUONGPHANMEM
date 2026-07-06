@@ -8,7 +8,8 @@ public final class DatabaseConfig {
     private static final String DEFAULT_HOST = "localhost";
     private static final String DEFAULT_PORT = "3306";
     private static final String URL_SUFFIX =
-        "/hospital?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&characterEncoding=UTF-8";
+        "/hospital?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Ho_Chi_Minh&characterEncoding=UTF-8"
+        + "&connectTimeout=5000&socketTimeout=10000";
     private static final String DEFAULT_USERNAME = "hospital";
     private static final String DEFAULT_PASSWORD = "hospital_secret";
 
