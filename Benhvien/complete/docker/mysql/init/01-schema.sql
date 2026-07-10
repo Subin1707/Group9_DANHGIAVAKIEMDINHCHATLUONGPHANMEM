@@ -82,6 +82,7 @@ INSERT IGNORE INTO room (id, name, doctorName, capacity, status) VALUES
 
 INSERT IGNORE INTO login (username, password, role, patientId) VALUES
 ('admin', '123456', 'ADMIN', NULL),
+('staff', '123456', 'STAFF', NULL),
 ('patient1', '123456', 'USER', 'P001'),
 ('patient2', '123456', 'USER', 'P002');
 
