@@ -13,3 +13,5 @@ build/
 *.tmp
 
 .env
+application-local.properties
+.DS_Store

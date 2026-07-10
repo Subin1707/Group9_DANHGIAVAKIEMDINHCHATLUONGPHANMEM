@@ -40,9 +40,9 @@
 		</dependency>
 		<!-- ...existing code... -->
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>8.0.33</version>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 		<!-- OpenAI API HTTP Client -->
 		<dependency>
